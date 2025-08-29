@@ -90,8 +90,8 @@ const ChatRoomPage = () => {
                       </div>
                     )}
                     <div className={`max-w-[70%] rounded-2xl px-4 py-2 shadow ${isSelf?"bg-[#2A4674] text-white":"bg-white text-[#2A4674]"}`}>
-                      <div className={`font-semibold ${isSelf?"text-white/90":"text-[#2A4674]"}`}>{m.senderName}</div>
-                      <div className="mt-0.5 leading-relaxed">{m.text}</div>
+                      <div className={`font-semibold bg-transparent ${isSelf?"text-white/90":"text-[#2A4674]"}`}>{m.senderName}</div>
+                      <div className="mt-0.5 leading-relaxed bg-transparent">{m.text}</div>
                     </div>
                     {isSelf && (
                       <div className="w-10 h-10 rounded-full bg-[#2A4674] text-white flex items-center justify-center font-bold">
