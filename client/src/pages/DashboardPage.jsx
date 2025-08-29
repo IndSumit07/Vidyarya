@@ -20,9 +20,9 @@ const DashboardPage = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-[#2A4674] text-white p-6 space-y-6">
         <div className="flex items-center gap-3 bg-transparent">
-          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold text-white font-chakra">{userData.name.charAt(0).toUpperCase()}</div>
+          <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl font-bold text-white font-chakra">{userData?.name.charAt(0).toUpperCase() || "U"}</div>
           <div className='bg-transparent'>
-            <div className="font-bold bg-transparent text-white text-xl font-chakra">{userData.name}</div>
+            <div className="font-bold bg-transparent text-white text-xl font-chakra">{userData?.name}</div>
             <div className="text-sm opacity-80 bg-transparent text-white/50">Dashboard</div>
           </div>
         </div>
@@ -39,7 +39,7 @@ const DashboardPage = () => {
 
       {/* Main */}
       <main className="flex-1 bg-[#F5F5EF] p-10">
-        <h1 className="text-4xl font-extrabold text-[#2A4674] font-monts">{userData.name+"'s Data"}</h1>
+        <h1 className="text-4xl font-extrabold text-[#2A4674] font-monts">{userData?.name+"'s Data"}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           <Card title="Lectures" desc="Watch recorded sessions and live classes." to="/lectures" bg="#fde2e4" icon="🎥"/>
           <Card title="Timetable" desc="Keep track of your schedule and deadlines." to="/timetable" bg="#cdb4db" icon="📆"/>

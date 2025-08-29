@@ -4,6 +4,7 @@ import axios from "axios";
 import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const GenerateQuizPage = () => {
   const { backendUrl } = useContext(AppContext);
@@ -15,6 +16,7 @@ const GenerateQuizPage = () => {
   const [isActive, setIsActive] = useState(true);
   const [isPrivate, setIsPrivate] = useState(false);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +50,10 @@ const GenerateQuizPage = () => {
         setTopicList("");
         setIsActive(true);
         setIsPrivate(false);
+        // Redirect to quizzes page after a short delay
+        setTimeout(() => {
+          navigate("/quizzes");
+        }, 1500);
       } else {
         toast.error(data.message || "Failed to generate quiz");
       }
@@ -60,8 +66,7 @@ const GenerateQuizPage = () => {
 
   return (
     <div>
-      <Navbar color="#210331"/>
-      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-[#210331]">
+      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-[#210331] py-10">
         <h1 className="font-monts font-bold text-5xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">
           Generate Quiz
         </h1>

@@ -18,6 +18,7 @@ import PerformancePage from './pages/PerformancePage';
 import IdeasPage from './pages/IdeasPage';
 import CustomizePage from './pages/CustomizePage';
 import WeeklyTodosPage from './pages/WeeklyTodosPage';
+import PDFNotesPage from './pages/PDFNotesPage';
 
 const App = () => {
   // const location = useLocation();
@@ -45,6 +46,7 @@ const App = () => {
         <Route path='/ideas' element={<IdeasPage/>} />
         <Route path='/customize' element={<CustomizePage/>} />
         <Route path='/todos/week' element={<WeeklyTodosPage/>} />
+        <Route path='/pdf-notes' element={<PDFNotesPage/>} />
       </Routes>
     </div>
   )

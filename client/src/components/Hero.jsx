@@ -5,6 +5,7 @@ import clickhere from "../../public/clickme.png"
 import pencil from "../../public/pensil.png"
 import curl from "../../public/curl.png"
 import { AppContext } from '../context/AppContext'
+import { Link } from 'react-router-dom'
 const Hero = () => {
     const { isLoggedIn } = useContext(AppContext);
   return (
@@ -14,7 +15,7 @@ const Hero = () => {
         </div>
         <div className='w-3/5 h-full bg-transparent flex justify-center items-start pl-20 flex-col relative'>
             <h1 className='text-[#2A4674] font-black text-7xl font-monts leading-snug'>SMART <br /> LEARNING <br /> FOR SMART <br />FUTURE</h1>
-            <button className='bg-[#FFB72C] flex justify-center items-center gap-3 text-white font-monts font-bold px-5 py-3 rounded-full text-xl mt-2'> <div className='w-5 h-5 rounded-full bg-white '></div>JOIN US</button>
+            <Link to="/register" className='bg-[#FFB72C] flex justify-center items-center gap-3 text-white font-monts font-bold px-5 py-3 rounded-full text-xl mt-2'> <div className='w-5 h-5 rounded-full bg-white '></div >{!isLoggedIn ? "JOIN US" : "Explore"}</Link>
             <div className='bg-transparent'><img src={Arrow} alt="" className='absolute left-[300px] top-52 bg-transparent'/></div>
             <div className='bg-transparent'><img src={bulb} alt="" className='absolute -right-[200px] -top-52 bg-transparent'/></div>
             {!isLoggedIn && (<div className='bg-transparent'><img src={clickhere} alt="" className='absolute -right-[130px] -top-48 bg-transparent w-[60%]'/></div>)}

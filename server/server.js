@@ -7,6 +7,8 @@ import userRouter from "./routes/user.routes.js";
 import quizRouter from "./routes/quiz.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import todoRouter from "./routes/todo.routes.js";
+import pdfRouter from "./routes/pdf.routes.js";
+import timetableRouter from "./routes/timetable.routes.js";
 import http from "http";
 // socket.io will be required at runtime; ensure dependency installed
 import { Server as SocketIOServer } from "socket.io";
@@ -41,6 +43,8 @@ app.use("/api/auth", userRouter);
 app.use("/api/quiz", quizRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/todo", todoRouter);
+app.use("/api/pdf", pdfRouter);
+app.use("/api/timetable", timetableRouter);
 
 io.on("connection", (socket) => {
   socket.on("join-room", ({ roomId }) => {

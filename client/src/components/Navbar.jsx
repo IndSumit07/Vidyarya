@@ -21,6 +21,7 @@ const Navbar = () => {
           { key: "quizzes", to: "/quizzes", label: "Quizzes" },
           { key: "chat", to: "/chat", label: "Chatrooms" },
           { key: "todos", to: "/todos", label: "Todos" },
+          { key: "pdf-notes", to: "/pdf-notes", label: "PDF Notes" },
         ].map((link) => (
           <li
             key={link.key}
