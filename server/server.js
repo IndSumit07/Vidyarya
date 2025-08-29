@@ -9,6 +9,7 @@ import chatRouter from "./routes/chat.routes.js";
 import todoRouter from "./routes/todo.routes.js";
 import pdfRouter from "./routes/pdf.routes.js";
 import timetableRouter from "./routes/timetable.routes.js";
+import coderoomRouter from "./routes/coderoom.routes.js";
 import http from "http";
 // socket.io will be required at runtime; ensure dependency installed
 import { Server as SocketIOServer } from "socket.io";
@@ -45,6 +46,7 @@ app.use("/api/chat", chatRouter);
 app.use("/api/todo", todoRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/timetable", timetableRouter);
+app.use("/api/coderoom", coderoomRouter);
 
 io.on("connection", (socket) => {
   socket.on("join-room", ({ roomId }) => {
@@ -53,6 +55,23 @@ io.on("connection", (socket) => {
   socket.on("chat-message", async ({ roomId, message }) => {
     // defer to REST controller to persist via HTTP in frontend, but echo realtime
     io.to(roomId).emit("chat-message", message);
+  });
+  
+  // CodeRoom socket events
+  socket.on("join-coderoom", ({ roomId }) => {
+    socket.join(`coderoom-${roomId}`);
+  });
+  
+  socket.on("leave-coderoom", ({ roomId }) => {
+    socket.leave(`coderoom-${roomId}`);
+  });
+  
+  socket.on("code-change", ({ roomId, code, userId }) => {
+    socket.to(`coderoom-${roomId}`).emit("code-updated", { code, userId });
+  });
+  
+  socket.on("coderoom-message", ({ roomId, message }) => {
+    socket.to(`coderoom-${roomId}`).emit("new-message", message);
   });
 });
 

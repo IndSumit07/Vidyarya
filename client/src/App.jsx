@@ -9,6 +9,8 @@ import PlayQuizPage from './pages/PlayQuizPage';
 import QuizResultPage from './pages/QuizResultPage';
 import ChatRoomsPage from './pages/ChatRoomsPage';
 import ChatRoomPage from './pages/ChatRoomPage';
+import CodeRoomsPage from './pages/CodeRoomsPage';
+import CodeRoomPage from './pages/CodeRoomPage';
 import TodoPage from './pages/TodoPage';
 import DashboardPage from './pages/DashboardPage';
 import LecturesPage from './pages/LecturesPage';
@@ -37,6 +39,8 @@ const App = () => {
         <Route path='/quiz/attempt/:attemptID' element={<QuizResultPage/>} />
         <Route path='/chat' element={<ChatRoomsPage/>} />
         <Route path='/chat/:roomId' element={<ChatRoomPage/>} />
+        <Route path='/coderooms' element={<CodeRoomsPage/>} />
+        <Route path='/coderoom/:roomId' element={<CodeRoomPage/>} />
         <Route path='/todos' element={<TodoPage/>} />
         <Route path='/dashboard' element={<DashboardPage/>} />
         <Route path='/lectures' element={<LecturesPage/>} />

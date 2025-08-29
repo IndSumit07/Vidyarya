@@ -25,13 +25,14 @@ const Dashboard = () => {
           <nav className="mt-6 grid gap-2">
             <Link to="/quizzes" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Quizzes</Link>
             <Link to="/chat" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Chatrooms</Link>
+            <Link to="/coderooms" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Code Rooms</Link>
             <Link to="/todos" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Todos</Link>
           </nav>
         </aside>
 
         <main className="md:col-span-3 grid gap-6">
           <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674]">Dashboard</h1>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="border-2 border-[#2A4674] rounded-2xl p-5">
               <h3 className="font-bold text-xl">Your Quizzes</h3>
               <p className="text-gray-600 mt-2">Create and attempt quizzes.</p>
@@ -41,6 +42,11 @@ const Dashboard = () => {
               <h3 className="font-bold text-xl">Your Chatrooms</h3>
               <p className="text-gray-600 mt-2">Create or join chatrooms.</p>
               <Link to="/chat" className="inline-block mt-4 px-4 py-2 bg-[#2A4674] text-white rounded-full">Open</Link>
+            </div>
+            <div className="border-2 border-[#2A4674] rounded-2xl p-5">
+              <h3 className="font-bold text-xl">Your Code Rooms</h3>
+              <p className="text-gray-600 mt-2">Collaborative coding with real-time chat.</p>
+              <Link to="/coderooms" className="inline-block mt-4 px-4 py-2 bg-[#2A4674] text-white rounded-full">Open</Link>
             </div>
             <div className="border-2 border-[#2A4674] rounded-2xl p-5">
               <h3 className="font-bold text-xl">Your Todos</h3>

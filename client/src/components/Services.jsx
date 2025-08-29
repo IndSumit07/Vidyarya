@@ -53,6 +53,7 @@ const Services = () => {
           <Card title="Ideas" desc="Save ideas and resources for later." to="/ideas" bg="#5b21b6" icon="💡"/>
           <Card title="My Todos" desc="View this week's todos by day." to="/todos/week" bg="#a7f3d0" icon="📆"/>
           <Card title="Discussions" desc="Ask questions and collaborate." to="/chat" bg="#a78bfa" icon="☁️"/>
+          <Card title="Code Rooms" desc="Collaborative coding with real-time chat." to="/coderooms" bg="#fef3c7" icon="💻"/>
         </div>
       </main>
     </div>
