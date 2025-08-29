@@ -22,7 +22,12 @@ const io = new SocketIOServer(server, {
 const PORT = process.env.PORT || 4000;
 connectDB();
 
-app.use(cors({ credentials: true, origin: ["http://localhost:5173"] }));
+app.use(
+  cors({
+    credentials: true,
+    origin: ["http://localhost:5173", "https://vidyarya.vercel.app"],
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
