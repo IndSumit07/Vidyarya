@@ -1,21 +1,38 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 import Loader from "../components/Loader";
+import { FaTrash, FaArrowLeft } from "react-icons/fa";
 
 const ChatRoomPage = () => {
   const { backendUrl, userData } = useContext(AppContext);
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const bottomRef = useRef(null);
   const socketRef = useRef(null);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [room, setRoom] = useState(null);
+  const [deletingRoom, setDeletingRoom] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const fetchRoomDetails = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/chat/rooms`, { withCredentials: true });
+      if (data.success) {
+        const currentRoom = data.rooms.find(r => r._id === roomId);
+        setRoom(currentRoom);
+      }
+    } catch (err) {
+      console.error('Error fetching room details:', err);
+    }
+  };
 
   const fetchMessages = async () => {
     try {
@@ -37,6 +54,7 @@ const ChatRoomPage = () => {
   useEffect(() => {
     joinRoom();
     fetchMessages();
+    fetchRoomDetails();
     // connect socket
     const socket = io(backendUrl, { withCredentials: true });
     socketRef.current = socket;
@@ -73,11 +91,64 @@ const ChatRoomPage = () => {
 
   const getInitial = (name) => (name?.[0] || "").toUpperCase();
 
+  const handleDeleteRoom = async () => {
+    setDeletingRoom(true);
+    try {
+      await axios.delete(`${backendUrl}/api/chat/rooms/${roomId}`, {
+        withCredentials: true
+      });
+      toast.success('Room deleted successfully');
+      navigate('/chat');
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete room');
+    } finally {
+      setDeletingRoom(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   return (
     <div>
       <Navbar />
       <div className="w-full max-w-3xl mx-auto p-6">
-        <div className="border-2 border-[#2A4674] rounded-2xl p-4 mt-8 h-[70vh] flex flex-col">
+        {/* Room Header */}
+        {room && (
+          <div className="bg-white border-2 border-[#2A4674] rounded-2xl p-4 mt-8 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => navigate('/chat')}
+                  className="p-2 text-[#2A4674] hover:bg-gray-100 rounded-full transition"
+                >
+                  <FaArrowLeft />
+                </button>
+                <div>
+                  <h2 className="text-xl font-bold text-[#2A4674]">{room.name}</h2>
+                  <p className="text-sm text-gray-600">
+                    {room.isPrivate ? 'Private Room' : 'Public Room'}
+                    {room.isPrivate && room.inviteCode && (
+                      <span className="ml-2 text-[#2A4674] font-mono">Code: {room.inviteCode}</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              
+              {room.createdBy === userData?._id && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  disabled={deletingRoom}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-full transition disabled:opacity-50"
+                  title="Delete Room"
+                >
+                  <FaTrash />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+        
+        <div className="border-2 border-[#2A4674] rounded-2xl p-4 h-[70vh] flex flex-col">
           <div className="flex-1 overflow-y-auto space-y-3" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
             {loading ? (
               <Loader label="Loading messages..." />
@@ -116,6 +187,45 @@ const ChatRoomPage = () => {
           </form>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <FaTrash className="mx-auto text-4xl text-red-600 mb-4" />
+              <h2 className="text-2xl font-bold mb-4">Delete Chat Room</h2>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete "{room?.name}"? This action cannot be undone and will remove the room for all participants.
+              </p>
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={deletingRoom}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteRoom}
+                  disabled={deletingRoom}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deletingRoom ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Deleting...
+                    </>
+                  ) : (
+                    'Delete Room'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -92,4 +92,46 @@ export const postMessage = async (req, res) => {
   }
 };
 
+// Delete chat room (only creator can delete)
+export const deleteRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const { userId } = req.body;
+
+    const room = await ChatRoom.findById(roomId);
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: 'Room not found'
+      });
+    }
+
+    // Check if user is the creator
+    if (room.createdBy.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the room creator can delete the room'
+      });
+    }
+
+    // Delete all messages associated with the room
+    await Message.deleteMany({ roomId });
+
+    // Delete the room
+    await ChatRoom.findByIdAndDelete(roomId);
+
+    res.status(200).json({
+      success: true,
+      message: 'Room deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting chat room:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete room',
+      error: error.message
+    });
+  }
+};
+
 

@@ -4,11 +4,15 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { AppContext } from '../context/AppContext';
 import Navbar from '../components/Navbar';
-import { FaCode, FaPlus, FaUsers, FaClock, FaSignInAlt } from 'react-icons/fa';
+import { FaCode, FaPlus, FaUsers, FaClock, FaSignInAlt, FaTrash } from 'react-icons/fa';
 
 const CodeRoomsPage = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [creatingRoom, setCreatingRoom] = useState(false);
+  const [joiningRoom, setJoiningRoom] = useState(false);
+  const [deletingRoom, setDeletingRoom] = useState(false);
+  const [roomToDelete, setRoomToDelete] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinCode, setJoinCode] = useState('');
@@ -23,11 +27,7 @@ const CodeRoomsPage = () => {
   const languages = [
     { value: 'javascript', label: 'JavaScript', icon: '⚡' },
     { value: 'html', label: 'HTML', icon: '🌐' },
-    { value: 'css', label: 'CSS', icon: '🎨' },
-    { value: 'python', label: 'Python', icon: '🐍' },
-    { value: 'java', label: 'Java', icon: '☕' },
-    { value: 'c', label: 'C', icon: '🔧' },
-    { value: 'cpp', label: 'C++', icon: '⚙️' }
+    { value: 'css', label: 'CSS', icon: '🎨' }
   ];
 
   useEffect(() => {
@@ -50,6 +50,7 @@ const CodeRoomsPage = () => {
 
   const handleCreateRoom = async (e) => {
     e.preventDefault();
+    setCreatingRoom(true);
     try {
       const response = await axios.post(`${backendUrl}/api/coderoom/create`, createForm, {
         withCredentials: true
@@ -66,6 +67,8 @@ const CodeRoomsPage = () => {
     } catch (error) {
       console.error('Error creating room:', error);
       toast.error(error.response?.data?.message || 'Failed to create room');
+    } finally {
+      setCreatingRoom(false);
     }
   };
 
@@ -76,6 +79,7 @@ const CodeRoomsPage = () => {
       return;
     }
 
+    setJoiningRoom(true);
     try {
       const response = await axios.post(`${backendUrl}/api/coderoom/join`, { roomCode: joinCode }, {
         withCredentials: true
@@ -87,6 +91,25 @@ const CodeRoomsPage = () => {
     } catch (error) {
       console.error('Error joining room:', error);
       toast.error(error.response?.data?.message || 'Failed to join room');
+    } finally {
+      setJoiningRoom(false);
+    }
+  };
+
+  const handleDeleteRoom = async (roomId) => {
+    setDeletingRoom(true);
+    try {
+      await axios.delete(`${backendUrl}/api/coderoom/${roomId}`, {
+        withCredentials: true
+      });
+      toast.success('Room deleted successfully');
+      setRoomToDelete(null);
+      fetchRooms();
+    } catch (error) {
+      console.error('Error deleting room:', error);
+      toast.error(error.response?.data?.message || 'Failed to delete room');
+    } finally {
+      setDeletingRoom(false);
     }
   };
 
@@ -127,7 +150,7 @@ const CodeRoomsPage = () => {
           <div className="flex gap-4">
             <button
               onClick={() => setShowJoinModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
+              className="bg-transparent flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
             >
               <FaSignInAlt />
               Join Room
@@ -195,17 +218,29 @@ const CodeRoomsPage = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-gray-500">
-                    Created by {room.creator.name}
-                  </div>
-                  <Link
-                    to={`/coderoom/${room._id}`}
-                    className="px-4 py-2 bg-[#2A4674] text-white rounded-full text-sm hover:bg-[#1e3557] transition"
-                  >
-                    Enter Room
-                  </Link>
-                </div>
+                                 <div className="flex items-center justify-between">
+                   <div className="text-xs text-gray-500">
+                     Created by {room.creator.name}
+                   </div>
+                   <div className="flex items-center gap-2">
+                     {room.creator._id === userData?._id && (
+                       <button
+                         onClick={() => setRoomToDelete(room)}
+                         disabled={deletingRoom}
+                         className="p-2 text-red-600 hover:bg-red-50 rounded-full transition disabled:opacity-50"
+                         title="Delete Room"
+                       >
+                         <FaTrash size={14} />
+                       </button>
+                     )}
+                     <Link
+                       to={`/coderoom/${room._id}`}
+                       className="px-4 py-2 bg-[#2A4674] text-white rounded-full text-sm hover:bg-[#1e3557] transition"
+                     >
+                       Enter Room
+                     </Link>
+                   </div>
+                 </div>
               </div>
             ))}
           </div>
@@ -286,9 +321,17 @@ const CodeRoomsPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-[#2A4674] text-white rounded-lg hover:bg-[#1e3557] transition"
+                  disabled={creatingRoom}
+                  className="flex-1 px-4 py-2 bg-[#2A4674] text-white rounded-lg hover:bg-[#1e3557] transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Create Room
+                  {creatingRoom ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Room'
+                  )}
                 </button>
               </div>
             </form>
@@ -327,17 +370,64 @@ const CodeRoomsPage = () => {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+                  disabled={joiningRoom}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  Join Room
+                  {joiningRoom ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Joining...
+                    </>
+                  ) : (
+                    'Join Room'
+                  )}
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
+                 </div>
+       )}
+
+       {/* Delete Confirmation Modal */}
+       {roomToDelete && (
+         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+           <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+             <div className="text-center">
+               <FaTrash className="mx-auto text-4xl text-red-600 mb-4" />
+               <h2 className="text-2xl font-bold mb-4">Delete Code Room</h2>
+               <p className="text-gray-600 mb-6">
+                 Are you sure you want to delete "{roomToDelete.name}"? This action cannot be undone and will remove the room for all participants.
+               </p>
+               
+               <div className="flex gap-4">
+                 <button
+                   onClick={() => setRoomToDelete(null)}
+                   disabled={deletingRoom}
+                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   onClick={() => handleDeleteRoom(roomToDelete._id)}
+                   disabled={deletingRoom}
+                   className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+                 >
+                   {deletingRoom ? (
+                     <>
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                       Deleting...
+                     </>
+                   ) : (
+                     'Delete Room'
+                   )}
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ };
 
 export default CodeRoomsPage;

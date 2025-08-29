@@ -38,7 +38,7 @@ const coderoomSchema = new mongoose.Schema({
   }],
   language: {
     type: String,
-    enum: ['html', 'css', 'javascript', 'java', 'python', 'c', 'cpp'],
+    enum: ['html', 'css', 'javascript'],
     default: 'javascript'
   },
   code: {

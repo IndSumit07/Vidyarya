@@ -8,7 +8,8 @@ import {
   updateRoomCode,
   getRoomMessages,
   sendMessage,
-  leaveRoom
+  leaveRoom,
+  deleteRoom
 } from '../controllers/coderoom.controller.js';
 
 const router = express.Router();
@@ -39,5 +40,8 @@ router.post('/:roomId/messages', sendMessage);
 
 // Leave room
 router.delete('/:roomId/leave', leaveRoom);
+
+// Delete room (only creator)
+router.delete('/:roomId', deleteRoom);
 
 export default router;

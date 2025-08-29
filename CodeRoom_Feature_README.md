@@ -9,18 +9,16 @@ CodeRoom is a revolutionary collaborative coding feature that allows multiple us
 - **Real-time Collaborative Code Editor**: Multiple users can edit code simultaneously
 - **Live Chat Integration**: Built-in chat system for communication during coding sessions
 - **Room-based System**: Create or join rooms using unique 6-digit codes
-- **Multiple Language Support**: HTML, CSS, JavaScript, Python, Java, C, C++
+- **Multiple Language Support**: HTML, CSS, JavaScript with live execution
 - **Code Synchronization**: Real-time code updates across all participants
 - **Room Management**: Create, join, and leave rooms with ease
 
 ### 💻 Supported Programming Languages
-- **JavaScript** ⚡ - Full ES6+ support with syntax highlighting
-- **HTML** 🌐 - Complete HTML5 support
-- **CSS** 🎨 - Modern CSS with syntax highlighting
-- **Python** 🐍 - Python 3.x support
-- **Java** ☕ - Java with syntax highlighting
-- **C** 🔧 - C programming language support
-- **C++** ⚙️ - C++ with modern features
+- **JavaScript** ⚡ - Full ES6+ support with live execution and console output
+- **HTML** 🌐 - Complete HTML5 support with live preview
+- **CSS** 🎨 - Modern CSS with syntax highlighting and style display
+
+> **Note**: Only JavaScript, HTML, and CSS are currently supported for live execution. These languages can run directly in the browser without requiring compilation or backend services, providing the best user experience for real-time collaboration and immediate feedback.
 
 ### 🔧 Technical Features
 - **Monaco Editor**: Professional-grade code editor (same as VS Code)
