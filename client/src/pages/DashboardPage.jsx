@@ -41,6 +41,7 @@ const DashboardPage = () => {
           <Card title="Performance analysis" desc="View grades, progress, and insights." to="/performance" bg="#e9d5ff" />
           <Card title="Generate Quiz" desc="Create practice questions by topic." to="/generate-quiz" bg="#dbeafe" />
           <Card title="Ideas" desc="Save ideas and resources for later." to="/ideas" bg="#5b21b6" />
+          <Card title="My Todos" desc="View this week's todos by day." to="/todos/week" bg="#a7f3d0" />
           <Card title="Discussions" desc="Ask questions and collaborate." to="/chat" bg="#a78bfa" />
           <Card title="Customize" desc="Pick icons and themes for your portal." to="/customize" bg="#fef08a" />
         </div>
