@@ -10,6 +10,10 @@ const TodoPage = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editDueDate, setEditDueDate] = useState("");
 
   const fetchTodos = async () => {
     try {
@@ -47,6 +51,42 @@ const TodoPage = () => {
     } catch (err) { toast.error(err.message); }
   };
 
+  const toInputDate = (value) => {
+    if (!value) return "";
+    const d = new Date(value);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const startEdit = (t) => {
+    setEditingId(t._id);
+    setEditTitle(t.title || "");
+    setEditDescription(t.description || "");
+    setEditDueDate(toInputDate(t.dueDate));
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle("");
+    setEditDescription("");
+    setEditDueDate("");
+  };
+
+  const saveEdit = async (t) => {
+    try {
+      const payload = { title: editTitle, description: editDescription, dueDate: editDueDate };
+      const { data } = await axios.put(`${backendUrl}/api/todo/${t._id}`, payload, { withCredentials: true });
+      if (data.success) {
+        cancelEdit();
+        fetchTodos();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) { toast.error(err.message); }
+  };
+
   return (
     <div>
       <Navbar />
@@ -65,16 +105,31 @@ const TodoPage = () => {
         ) : (
           <div className="mt-8 grid gap-4">
             {todos.map((t) => (
-              <div key={t._id} className="border-2 border-[#2A4674] rounded-2xl p-5 flex items-center justify-between">
-                <div>
-                  <div className="font-bold">{t.title}</div>
-                  {t.description && <div className="text-gray-600">{t.description}</div>}
-                  {t.dueDate && <div className="text-gray-600">Due: {new Date(t.dueDate).toLocaleDateString()}</div>}
-                </div>
-                <div className="flex gap-3">
-                  <button onClick={()=>toggleComplete(t)} className={`px-4 py-2 rounded-full border-2 ${t.isCompleted?"bg-green-600 text-white border-green-600":"border-[#2A4674]"}`}>{t.isCompleted?"Completed":"Mark Done"}</button>
-                  <button onClick={()=>remove(t)} className="px-4 py-2 rounded-full border-2 border-red-600 text-red-600">Delete</button>
-                </div>
+              <div key={t._id} className="border-2 border-[#2A4674] rounded-2xl p-5">
+                {editingId === t._id ? (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+                    <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Title" value={editTitle} onChange={(e)=>setEditTitle(e.target.value)} />
+                    <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Description" value={editDescription} onChange={(e)=>setEditDescription(e.target.value)} />
+                    <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" type="date" value={editDueDate} onChange={(e)=>setEditDueDate(e.target.value)} />
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={()=>saveEdit(t)} className="px-4 py-2 bg-[#2A4674] text-white rounded-full">Save</button>
+                      <button onClick={cancelEdit} className="px-4 py-2 border-2 border-[#2A4674] rounded-full">Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-bold">{t.title}</div>
+                      {t.description && <div className="text-gray-600">{t.description}</div>}
+                      {t.dueDate && <div className="text-gray-600">Due: {new Date(t.dueDate).toLocaleDateString()}</div>}
+                    </div>
+                    <div className="flex gap-3">
+                      <button onClick={()=>toggleComplete(t)} className={`px-4 py-2 rounded-full border-2 ${t.isCompleted?"bg-green-600 text-white border-green-600":"border-[#2A4674]"}`}>{t.isCompleted?"Completed":"Mark Done"}</button>
+                      <button onClick={()=>startEdit(t)} className="px-4 py-2 rounded-full border-2 border-[#2A4674]">Edit</button>
+                      <button onClick={()=>remove(t)} className="px-4 py-2 rounded-full border-2 border-red-600 text-red-600">Delete</button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
