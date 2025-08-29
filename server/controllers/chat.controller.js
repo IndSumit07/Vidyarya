@@ -62,6 +62,9 @@ export const postMessage = async (req, res) => {
     if (!room) return res.status(404).json({ success: false, message: "Room not found" });
     const message = new Message({ roomId, senderId: userId, senderName, text });
     await message.save();
+    // emit realtime to room
+    const io = req.app.get("io");
+    if (io) io.to(roomId.toString()).emit("chat-message", message);
     res.status(201).json({ success: true, message });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

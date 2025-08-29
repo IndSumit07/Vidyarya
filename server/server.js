@@ -19,6 +19,8 @@ const io = new SocketIOServer(server, {
     credentials: true,
   },
 });
+// make io available to controllers
+app.set("io", io);
 const PORT = process.env.PORT || 4000;
 connectDB();
 
