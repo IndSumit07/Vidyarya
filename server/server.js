@@ -15,7 +15,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ["http://localhost:5173", process.env.VITE_FRONTEND_ORIGIN],
+    origin: ["http://localhost:5173", "https://vidyarya.vercel.app"],
     credentials: true,
   },
 });
