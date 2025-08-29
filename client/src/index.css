@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*{
+    background: #F5F5EF;
+    color: black;
+}
+
+h1, h2, h3, p{
+    background: transparent;
+}
