@@ -13,6 +13,7 @@ const ChatRoomPage = () => {
   const [text, setText] = useState("");
   const bottomRef = useRef(null);
   const socketRef = useRef(null);
+  const [sending, setSending] = useState(false);
 
   const fetchMessages = async () => {
     try {
@@ -52,16 +53,19 @@ const ChatRoomPage = () => {
 
   const send = async (e) => {
     e.preventDefault();
+    if (!text.trim() || sending) return;
     const payload = { senderName: userData?.name || "User", text };
     try {
+      setSending(true);
       const { data } = await axios.post(`${backendUrl}/api/chat/rooms/${roomId}/messages`, payload, { withCredentials: true });
       if (data.success) {
-        // message will also arrive via socket; optimistically show to avoid flicker
-        setMessages((m) => [...m, data.message]);
+        // avoid local double-add; rely on socket event
         setText("");
       } else toast.error(data.message);
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -72,22 +76,22 @@ const ChatRoomPage = () => {
       <Navbar />
       <div className="w-full max-w-3xl mx-auto p-6">
         <div className="border-2 border-[#2A4674] rounded-2xl p-4 mt-8 h-[70vh] flex flex-col">
-          <div className="flex-1 overflow-y-auto space-y-3">
+          <div className="flex-1 overflow-y-auto space-y-3" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
             {messages.length === 0 ? (
               <div className="text-center text-gray-600 mt-6">No messages yet. Say hello!</div>
             ) : (
               messages.map((m) => {
                 const isSelf = m.senderName === (userData?.name || "User");
                 return (
-                  <div key={m._id} className={`flex items-start gap-3 ${isSelf?"justify-end":"justify-start"}`}>
+                  <div key={m._id} className={`flex items-start gap-3 px-1 ${isSelf?"justify-end":"justify-start"}`}>
                     {!isSelf && (
                       <div className="w-10 h-10 rounded-full bg-[#2A4674] text-white flex items-center justify-center font-bold">
                         {getInitial(m.senderName)}
                       </div>
                     )}
-                    <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${isSelf?"bg-[#2A4674] text-white":"bg-gray-100"}`}>
-                      <div className={`font-semibold ${isSelf?"text-white/90":"text-gray-800"}`}>{m.senderName}</div>
-                      <div>{m.text}</div>
+                    <div className={`max-w-[70%] rounded-2xl px-4 py-2 shadow ${isSelf?"bg-[#2A4674] text-white":"bg-white text-[#2A4674]"}`}>
+                      <div className={`font-semibold ${isSelf?"text-white/90":"text-[#2A4674]"}`}>{m.senderName}</div>
+                      <div className="mt-0.5 leading-relaxed">{m.text}</div>
                     </div>
                     {isSelf && (
                       <div className="w-10 h-10 rounded-full bg-[#2A4674] text-white flex items-center justify-center font-bold">
@@ -101,8 +105,10 @@ const ChatRoomPage = () => {
             <div ref={bottomRef} />
           </div>
           <form onSubmit={send} className="mt-3 flex gap-3">
-            <input className="flex-1 px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Type message" value={text} onChange={(e)=>setText(e.target.value)} />
-            <button className="px-6 py-3 bg-[#2A4674] text-white rounded-full">Send</button>
+            <input className="flex-1 px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Type message" value={text} onChange={(e)=>setText(e.target.value)} disabled={sending} />
+            <button disabled={sending} className={`px-6 py-3 rounded-full text-white ${sending?"opacity-60 cursor-not-allowed":""}`} style={{ backgroundColor: '#2A4674' }}>
+              {sending ? 'Sending…' : 'Send'}
+            </button>
           </form>
         </div>
       </div>
