@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
+import { useContext } from "react";
+import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 
 const GenerateQuizPage = () => {
+  const { backendUrl } = useContext(AppContext);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [subject, setSubject] = useState("");
@@ -23,7 +26,7 @@ const GenerateQuizPage = () => {
     try {
       setLoading(true);
       const { data } = await axios.post(
-        "http://localhost:4000/api/quiz/generate", // update backend url
+        backendUrl + "/api/quiz/generate",
         {
           name,
           description,

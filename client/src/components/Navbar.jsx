@@ -10,22 +10,28 @@ const Navbar = () => {
     <nav className="flex justify-between items-center w-full h-[80px] px-10">
       {/* Logo */}
       <div className="text-2xl font-monts font-semibold text-[#2A4674] mr-20">
-        Vidyarya
+        <Link to="/">Vidyarya</Link>
       </div>
 
       {/* Links */}
       <ul className="flex justify-center items-center gap-8 font-chakra text-[#2A4674]">
-        {["home", "services", "about", "contact"].map((link) => (
+        {[
+          { key: "home", to: "/", label: "Home" },
+          { key: "dashboard", to: "/dashboard", label: "Dashboard" },
+          { key: "quizzes", to: "/quizzes", label: "Quizzes" },
+          { key: "chat", to: "/chat", label: "Chatrooms" },
+          { key: "todos", to: "/todos", label: "Todos" },
+        ].map((link) => (
           <li
-            key={link}
-            onClick={() => setActiveLink(link)}
+            key={link.key}
+            onClick={() => setActiveLink(link.key)}
             className={`text-lg font-semibold cursor-pointer hover:-translate-y-1 transition-all duration-300 ${
-              activeLink === link
+              activeLink === link.key
                 ? "bg-[#2A4674] text-[#F5F5EF] px-4 py-2 rounded-full"
                 : "text-[#2A4674]"
             }`}
           >
-            {link.charAt(0).toUpperCase() + link.slice(1)}
+            <Link to={link.to} className="bg-transparent">{link.label}</Link>
           </li>
         ))}
       </ul>

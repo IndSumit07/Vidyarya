@@ -1,0 +1,57 @@
+import React, { useEffect, useState, useContext } from "react";
+import Navbar from "../components/Navbar";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContext";
+import { Link } from "react-router-dom";
+
+const QuizListPage = () => {
+  const { backendUrl } = useContext(AppContext);
+  const [quizzes, setQuizzes] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(backendUrl + "/api/quiz/list", { withCredentials: true });
+        data.success ? setQuizzes(data.quizzes) : toast.error(data.message);
+      } catch (err) {
+        toast.error(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuizzes();
+  }, [backendUrl]);
+
+  return (
+    <div>
+      <Navbar />
+      <div className="w-full min-h-[calc(100vh-80px)] max-w-5xl mx-auto p-6">
+        <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">Quizzes</h1>
+        {loading ? (
+          <p className="mt-10">Loading...</p>
+        ) : quizzes.length === 0 ? (
+          <div className="mt-10 text-center text-gray-600">No quizzes available yet. Create one from Generate Quiz or check back later.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            {quizzes.map((q) => (
+              <div key={q._id} className="border-2 border-[#2A4674] rounded-2xl p-5">
+                <h3 className="font-bold text-xl">{q.name}</h3>
+                <p className="text-gray-600">{q.subject}</p>
+                <div className="mt-4">
+                  <Link to={`/quiz/${q._id}`} className="px-4 py-2 bg-[#2A4674] text-white rounded-full">Start</Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default QuizListPage;
+
+
