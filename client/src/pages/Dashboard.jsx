@@ -11,14 +11,14 @@ const Dashboard = () => {
       <Navbar />
       <div className="w-full max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="md:col-span-1 border-2 border-[#2A4674] rounded-2xl p-5 h-fit">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-[#2A4674] text-white flex items-center justify-center text-2xl font-bold">
+          <div className="flex items-center gap-4 bg-transparent">
+            <div className="w-14 h-14 rounded-full bg-[#2A4674] text-white flex items-center justify-center text-2xl font-bold bg-transparent">
               {userData?.name?.[0]?.toUpperCase() || "U"}
             </div>
-            <div>
-              <div className="font-bold text-lg">{userData?.name}</div>
-              <div className="text-gray-600 text-sm">{userData?.email}</div>
-              <div className="text-gray-600 text-sm capitalize">{userData?.role}</div>
+            <div className="bg-transparent">
+              <div className="font-bold text-lg bg-transparent">{userData?.name}</div>
+              <div className="text-gray-600 text-sm bg-transparent">{userData?.email}</div>
+              <div className="text-gray-600 text-sm capitalize bg-transparent">{userData?.role}</div>
             </div>
           </div>
 

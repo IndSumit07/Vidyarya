@@ -45,9 +45,9 @@ const Navbar = () => {
             </button>
           </Link>
         ) : (
-          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2A4674] text-white font-chakra text-xl font-semibold">
+          <Link to="/dashboard" className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2A4674] text-white font-chakra text-xl font-semibold">
             {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-          </div>
+          </Link>
         )}
       </div>
     </nav>
