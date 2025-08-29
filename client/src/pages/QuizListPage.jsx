@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
 
 const QuizListPage = () => {
   const { backendUrl } = useContext(AppContext);
@@ -31,7 +32,7 @@ const QuizListPage = () => {
       <div className="w-full min-h-[calc(100vh-80px)] max-w-5xl mx-auto p-6">
         <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">Quizzes</h1>
         {loading ? (
-          <p className="mt-10">Loading...</p>
+          <Loader label="Loading quizzes..." />
         ) : quizzes.length === 0 ? (
           <div className="mt-10 text-center text-gray-600">No quizzes available yet. Create one from Generate Quiz or check back later.</div>
         ) : (

@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
+import Loader from "../components/Loader";
 
 const QuizResultPage = () => {
   const { attemptID } = useParams();
@@ -25,7 +26,7 @@ const QuizResultPage = () => {
   if (!result) return (
     <div>
       <Navbar />
-      <p className="p-6">Loading...</p>
+      <Loader label="Fetching results..." />
     </div>
   );
 

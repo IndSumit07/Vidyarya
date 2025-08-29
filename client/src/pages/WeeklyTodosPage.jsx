@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
+import Loader from "../components/Loader";
 
 const dayNames = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const pastel = ["#fde2e4","#cde8ff","#d1fae5","#fef9c3","#e9d5ff","#c7d2fe","#ffd6a5"];
@@ -17,10 +18,14 @@ const WeeklyTodosPage = () => {
   const { backendUrl } = useContext(AppContext);
   const [todos, setTodos] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchTodos = async () => {
+      setLoading(true);
       const { data } = await axios.get(backendUrl + "/api/todo", { withCredentials: true });
       if (data.success) setTodos(data.todos);
+      setLoading(false);
     };
     fetchTodos();
   }, [backendUrl]);
@@ -59,6 +64,7 @@ const WeeklyTodosPage = () => {
       <Navbar />
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">My Week</h1>
+        {loading ? <Loader label="Loading week..." /> : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           {weekDays.map((d, i) => {
             const key = d.toDateString();
@@ -85,6 +91,7 @@ const WeeklyTodosPage = () => {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

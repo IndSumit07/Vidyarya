@@ -4,6 +4,7 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
+import Loader from "../components/Loader";
 
 const ChatRoomsPage = () => {
   const { backendUrl, userData } = useContext(AppContext);
@@ -11,14 +12,16 @@ const ChatRoomsPage = () => {
   const [name, setName] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [joinCode, setJoinCode] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const fetchRooms = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(backendUrl + "/api/chat/rooms", { withCredentials: true });
       data.success ? setRooms(data.rooms) : toast.error(data.message);
     } catch (err) {
       toast.error(err.message);
-    }
+    } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchRooms(); }, []);
@@ -76,7 +79,9 @@ const ChatRoomsPage = () => {
           </form>
         </div>
 
-        {rooms.length === 0 ? (
+        {loading ? (
+          <Loader label="Loading chatrooms..." />
+        ) : rooms.length === 0 ? (
           <div className="mt-10 text-center text-gray-600">No chatrooms yet. Create the first one above.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">

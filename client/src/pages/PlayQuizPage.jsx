@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
+import Loader from "../components/Loader";
 
 const PlayQuizPage = () => {
   const { quizID } = useParams();
@@ -14,6 +15,7 @@ const PlayQuizPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -25,6 +27,8 @@ const PlayQuizPage = () => {
         } else toast.error(data.message);
       } catch (err) {
         toast.error(err.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchQuiz();
@@ -67,7 +71,9 @@ const PlayQuizPage = () => {
     <div>
       <Navbar />
       <div className="w-full min-h-[calc(100vh-80px)] max-w-3xl mx-auto p-6">
-        {q ? (
+        {loading ? (
+          <Loader label="Preparing quiz..." />
+        ) : q ? (
           <div className="border-2 border-[#2A4674] rounded-2xl p-6 mt-10">
             <h2 className="font-bold text-2xl">Q{currentIndex + 1}. {q.questionText}</h2>
             <div className="mt-6 grid gap-3">

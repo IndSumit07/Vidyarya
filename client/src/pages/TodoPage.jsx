@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader";
 
 const TodoPage = () => {
   const { backendUrl } = useContext(AppContext);
@@ -14,14 +15,16 @@ const TodoPage = () => {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editDueDate, setEditDueDate] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const fetchTodos = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(backendUrl + "/api/todo", { withCredentials: true });
       data.success ? setTodos(data.todos) : toast.error(data.message);
     } catch (err) {
       toast.error(err.message);
-    }
+    } finally { setLoading(false); }
   };
 
   useEffect(() => { fetchTodos(); }, []);
@@ -100,7 +103,9 @@ const TodoPage = () => {
           <button className="px-6 py-3 bg-[#2A4674] text-white rounded-full">Add</button>
         </form>
 
-        {todos.length === 0 ? (
+        {loading ? (
+          <Loader label="Loading todos..." />
+        ) : todos.length === 0 ? (
           <div className="mt-10 text-center text-gray-600">No todos yet. Add your first todo above.</div>
         ) : (
           <div className="mt-8 grid gap-4">

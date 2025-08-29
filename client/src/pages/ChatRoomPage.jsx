@@ -5,6 +5,7 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
+import Loader from "../components/Loader";
 
 const ChatRoomPage = () => {
   const { backendUrl, userData } = useContext(AppContext);
@@ -14,6 +15,7 @@ const ChatRoomPage = () => {
   const bottomRef = useRef(null);
   const socketRef = useRef(null);
   const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchMessages = async () => {
     try {
@@ -21,7 +23,7 @@ const ChatRoomPage = () => {
       data.success ? setMessages(data.messages) : toast.error(data.message);
     } catch (err) {
       toast.error(err.message);
-    }
+    } finally { setLoading(false); }
   };
 
   const joinRoom = async () => {
@@ -77,7 +79,9 @@ const ChatRoomPage = () => {
       <div className="w-full max-w-3xl mx-auto p-6">
         <div className="border-2 border-[#2A4674] rounded-2xl p-4 mt-8 h-[70vh] flex flex-col">
           <div className="flex-1 overflow-y-auto space-y-3" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-            {messages.length === 0 ? (
+            {loading ? (
+              <Loader label="Loading messages..." />
+            ) : messages.length === 0 ? (
               <div className="text-center text-gray-600 mt-6">No messages yet. Say hello!</div>
             ) : (
               messages.map((m) => {
