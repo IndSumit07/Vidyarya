@@ -60,8 +60,8 @@ const GenerateQuizPage = () => {
 
   return (
     <div>
-      <Navbar />
-      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-start items-center">
+      <Navbar color="#210331"/>
+      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-[#210331]">
         <h1 className="font-monts font-bold text-5xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">
           Generate Quiz
         </h1>
