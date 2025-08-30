@@ -12,19 +12,11 @@ try {
 }
 
 // Upload lecture file
-// Upload lecture file
 export const uploadLecture = async (req, res) => {
   try {
     const { title, description, subject, topic, tags, isPublic } = req.body;
-    const userId = req.body.userId; // uploader (any role)
+    const userId = req.body.userId;
     const file = req.file;
-
-    console.log("Upload lecture request:", {
-      userId,
-      title,
-      subject,
-      topic,
-    });
 
     if (!file) {
       return res.status(400).json({
@@ -33,17 +25,10 @@ export const uploadLecture = async (req, res) => {
       });
     }
 
-    // Find user (optional, but useful for saving uploader name)
     const user = await User.findById(userId);
-    console.log(
-      "Found user:",
-      user ? { id: user._id, name: user.name, role: user.role } : null
-    );
 
     let fileUrl;
-
     if (cloudinary) {
-      // Upload to Cloudinary
       try {
         const result = await cloudinary.uploader.upload(file.path, {
           resource_type: "auto",
@@ -52,20 +37,16 @@ export const uploadLecture = async (req, res) => {
         fileUrl = result.secure_url;
       } catch (cloudinaryError) {
         console.error("Cloudinary upload failed:", cloudinaryError);
-        // Fallback to local file path
         fileUrl = `/uploads/${file.filename}`;
       }
     } else {
-      // Fallback to local file path
       fileUrl = `/uploads/${file.filename}`;
     }
 
-    // Delete local file only if Cloudinary upload was successful
     if (cloudinary && fileUrl.startsWith("http")) {
       fs.unlinkSync(file.path);
     }
 
-    // Determine file type
     let fileType = "other";
     const fileExtension = file.originalname.split(".").pop().toLowerCase();
     if (["pdf"].includes(fileExtension)) fileType = "pdf";
@@ -76,7 +57,6 @@ export const uploadLecture = async (req, res) => {
     else if (["jpg", "jpeg", "png", "gif"].includes(fileExtension))
       fileType = "image";
 
-    // Create lecture (uploaded by anyone)
     const lecture = new Lecture({
       title,
       description,
@@ -85,8 +65,8 @@ export const uploadLecture = async (req, res) => {
       fileUrl,
       fileType,
       fileSize: file.size,
-      user: userId, // keep same field for compatibility
-      userName: user ? user.name : "Guest", // fallback if no user found
+      user: userId,
+      userName: user ? user.name : "Guest",
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       isPublic: isPublic === "true",
     });
@@ -100,10 +80,7 @@ export const uploadLecture = async (req, res) => {
     });
   } catch (error) {
     console.error("Upload lecture error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to upload lecture",
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -111,28 +88,12 @@ export const uploadLecture = async (req, res) => {
 export const searchLectures = async (req, res) => {
   try {
     const { query, subject, topic, fileType, page = 1, limit = 12 } = req.query;
-
     let searchQuery = { isPublic: true };
 
-    // Text search
-    if (query) {
-      searchQuery.$text = { $search: query };
-    }
-
-    // Filter by subject
-    if (subject) {
-      searchQuery.subject = { $regex: subject, $options: "i" };
-    }
-
-    // Filter by topic
-    if (topic) {
-      searchQuery.topic = { $regex: topic, $options: "i" };
-    }
-
-    // Filter by file type
-    if (fileType) {
-      searchQuery.fileType = fileType;
-    }
+    if (query) searchQuery.$text = { $search: query };
+    if (subject) searchQuery.subject = { $regex: subject, $options: "i" };
+    if (topic) searchQuery.topic = { $regex: topic, $options: "i" };
+    if (fileType) searchQuery.fileType = fileType;
 
     const skip = (page - 1) * limit;
 
@@ -153,41 +114,25 @@ export const searchLectures = async (req, res) => {
     });
   } catch (error) {
     console.error("Search lectures error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to search lectures",
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to search lectures" });
   }
 };
 
-// Get all lectures (for admin/teacher dashboard)
-export const getAllLectures = async (req, res) => {
+// ✅ Fetch all lectures (public, with pagination)
+export const fetchAllLectures = async (req, res) => {
   try {
     const { page = 1, limit = 12 } = req.query;
-    const userId = req.body.userId;
-
-    const user = await User.findById(userId);
-    if (!user || (user.role !== "teacher" && user.role !== "admin")) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied",
-      });
-    }
-
     const skip = (page - 1) * limit;
 
-    let searchQuery = {};
-    if (user.role === "teacher") {
-      searchQuery.teacher = userId;
-    }
-
-    const lectures = await Lecture.find(searchQuery)
+    const lectures = await Lecture.find()
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit))
       .populate("teacher", "name email");
 
-    const total = await Lecture.countDocuments(searchQuery);
+    const total = await Lecture.countDocuments();
 
     res.json({
       success: true,
@@ -197,11 +142,10 @@ export const getAllLectures = async (req, res) => {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
-    console.error("Get all lectures error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get lectures",
-    });
+    console.error("Fetch all lectures error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch lectures" });
   }
 };
 
@@ -209,33 +153,24 @@ export const getAllLectures = async (req, res) => {
 export const getLectureById = async (req, res) => {
   try {
     const { lectureId } = req.params;
-
     const lecture = await Lecture.findById(lectureId).populate(
       "teacher",
       "name email"
     );
 
     if (!lecture) {
-      return res.status(404).json({
-        success: false,
-        message: "Lecture not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lecture not found" });
     }
 
-    // Increment views
     lecture.views += 1;
     await lecture.save();
 
-    res.json({
-      success: true,
-      lecture,
-    });
+    res.json({ success: true, lecture });
   } catch (error) {
     console.error("Get lecture error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get lecture",
-    });
+    res.status(500).json({ success: false, message: "Failed to get lecture" });
   }
 };
 
@@ -243,16 +178,13 @@ export const getLectureById = async (req, res) => {
 export const downloadLecture = async (req, res) => {
   try {
     const { lectureId } = req.params;
-
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
-      return res.status(404).json({
-        success: false,
-        message: "Lecture not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lecture not found" });
     }
 
-    // Increment downloads
     lecture.downloads += 1;
     await lecture.save();
 
@@ -263,10 +195,9 @@ export const downloadLecture = async (req, res) => {
     });
   } catch (error) {
     console.error("Download lecture error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to generate download link",
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to generate download link" });
   }
 };
 
@@ -279,21 +210,20 @@ export const updateLecture = async (req, res) => {
 
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
-      return res.status(404).json({
-        success: false,
-        message: "Lecture not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lecture not found" });
     }
 
-    // Check if user is the teacher who uploaded the lecture
     if (lecture.teacher.toString() !== userId) {
-      return res.status(403).json({
-        success: false,
-        message: "You can only update your own lectures",
-      });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "You can only update your own lectures",
+        });
     }
 
-    // Update fields
     if (title) lecture.title = title;
     if (description) lecture.description = description;
     if (subject) lecture.subject = subject;
@@ -310,10 +240,9 @@ export const updateLecture = async (req, res) => {
     });
   } catch (error) {
     console.error("Update lecture error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to update lecture",
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to update lecture" });
   }
 };
 
@@ -325,21 +254,20 @@ export const deleteLecture = async (req, res) => {
 
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
-      return res.status(404).json({
-        success: false,
-        message: "Lecture not found",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Lecture not found" });
     }
 
-    // Check if user is the teacher who uploaded the lecture
     if (lecture.teacher.toString() !== userId) {
-      return res.status(403).json({
-        success: false,
-        message: "You can only delete your own lectures",
-      });
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "You can only delete your own lectures",
+        });
     }
 
-    // Delete from Cloudinary if available
     if (cloudinary && lecture.fileUrl && lecture.fileUrl.startsWith("http")) {
       try {
         const publicId = lecture.fileUrl.split("/").pop().split(".")[0];
@@ -351,16 +279,12 @@ export const deleteLecture = async (req, res) => {
 
     await Lecture.findByIdAndDelete(lectureId);
 
-    res.json({
-      success: true,
-      message: "Lecture deleted successfully",
-    });
+    res.json({ success: true, message: "Lecture deleted successfully" });
   } catch (error) {
     console.error("Delete lecture error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to delete lecture",
-    });
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete lecture" });
   }
 };
 
@@ -368,16 +292,10 @@ export const deleteLecture = async (req, res) => {
 export const getSubjects = async (req, res) => {
   try {
     const subjects = await Lecture.distinct("subject");
-    res.json({
-      success: true,
-      subjects,
-    });
+    res.json({ success: true, subjects });
   } catch (error) {
     console.error("Get subjects error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get subjects",
-    });
+    res.status(500).json({ success: false, message: "Failed to get subjects" });
   }
 };
 
@@ -386,15 +304,9 @@ export const getTopicsBySubject = async (req, res) => {
   try {
     const { subject } = req.params;
     const topics = await Lecture.distinct("topic", { subject });
-    res.json({
-      success: true,
-      topics,
-    });
+    res.json({ success: true, topics });
   } catch (error) {
     console.error("Get topics error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get topics",
-    });
+    res.status(500).json({ success: false, message: "Failed to get topics" });
   }
 };
