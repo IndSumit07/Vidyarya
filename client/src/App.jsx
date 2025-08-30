@@ -21,6 +21,7 @@ import IdeasPage from './pages/IdeasPage';
 import CustomizePage from './pages/CustomizePage';
 import WeeklyTodosPage from './pages/WeeklyTodosPage';
 import PDFNotesPage from './pages/PDFNotesPage';
+import AIProcessingPage from './pages/AIProcessingPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import Navbar from './components/Navbar';
 
@@ -54,6 +55,7 @@ const App = () => {
         <Route path='/customize' element={<CustomizePage/>} />
         <Route path='/todos/week' element={<WeeklyTodosPage/>} />
         <Route path='/pdf-notes' element={<PDFNotesPage/>} />
+        <Route path='/ai-processing' element={<AIProcessingPage/>} />
       </Routes>
     </div>
   )

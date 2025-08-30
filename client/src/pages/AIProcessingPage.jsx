@@ -4,29 +4,27 @@ import { toast } from 'react-toastify';
 import {
   FiUpload,
   FiFileText,
-  FiPlay,
   FiRefreshCw,
   FiTrash2,
   FiEye,
-  FiDownload,
   FiBookOpen,
   FiHelpCircle,
   FiCheckCircle,
   FiClock,
-  FiAlertCircle
+  FiAlertCircle,
+  FiBrain,
+  FiZap
 } from 'react-icons/fi';
 import axios from 'axios';
 
-const PDFNotesPage = () => {
+const AIProcessingPage = () => {
   const { backendUrl } = useContext(AppContext);
-  const [pdfs, setPdfs] = useState([]);
+  const [aiProcessedPDFs, setAiProcessedPDFs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const [selectedPDF, setSelectedPDF] = useState(null);
-  const [showAIContent, setShowAIContent] = useState(false);
-  const [aiContent, setAiContent] = useState(null);
-  const [aiContentLoading, setAiContentLoading] = useState(false);
+  const [showContentModal, setShowContentModal] = useState(false);
+  const [selectedContent, setSelectedContent] = useState(null);
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
@@ -37,22 +35,22 @@ const PDFNotesPage = () => {
     uploaderName: ''
   });
 
-  // Fetch PDFs on mount
+  // Fetch AI processed PDFs on mount
   useEffect(() => {
-    fetchPDFs();
+    fetchAIProcessedPDFs();
   }, []);
 
-  // Fetch all PDFs with AI status
-  const fetchPDFs = async () => {
+  // Fetch all AI processed PDFs
+  const fetchAIProcessedPDFs = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${backendUrl}/api/pdf-ai/`);
+      const response = await axios.get(`${backendUrl}/api/ai-processing/`);
       if (response.data.success) {
-        setPdfs(response.data.pdfs);
+        setAiProcessedPDFs(response.data.aiProcessedPDFs);
       }
     } catch (error) {
-      console.error('Error fetching PDFs:', error);
-      toast.error('Failed to load PDFs');
+      console.error('Error fetching AI processed PDFs:', error);
+      toast.error('Failed to load AI processed content');
     } finally {
       setLoading(false);
     }
@@ -74,7 +72,7 @@ const PDFNotesPage = () => {
     setUploadForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Upload PDF and generate AI content
+  // Upload PDF for AI processing
   const handleUpload = async (e) => {
     e.preventDefault();
     
@@ -99,21 +97,21 @@ const PDFNotesPage = () => {
       formData.append('tags', uploadForm.tags);
       formData.append('uploaderName', uploadForm.uploaderName);
 
-      const response = await axios.post(`${backendUrl}/api/pdf-ai/upload`, formData, {
+      const response = await axios.post(`${backendUrl}/api/ai-processing/process`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
       if (response.data.success) {
-        toast.success('PDF uploaded successfully! AI content is being generated...');
+        toast.success('PDF uploaded for AI processing! Content will be generated in the background.');
         setShowUploadModal(false);
         resetUploadForm();
-        fetchPDFs(); // Refresh the list
+        fetchAIProcessedPDFs(); // Refresh the list
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload PDF');
+      toast.error(error.response?.data?.message || 'Failed to upload PDF for processing');
     } finally {
       setUploading(false);
     }
@@ -130,49 +128,24 @@ const PDFNotesPage = () => {
     });
   };
 
-  // Get AI content for a PDF
-  const fetchAIContent = async (pdfId) => {
-    try {
-      setAiContentLoading(true);
-      const response = await axios.get(`${backendUrl}/api/pdf-ai/${pdfId}/ai-content`);
-      if (response.data.success) {
-        setAiContent(response.data.aiContent);
-        setShowAIContent(true);
-      }
-    } catch (error) {
-      console.error('Error fetching AI content:', error);
-      toast.error('Failed to load AI content');
-    } finally {
-      setAiContentLoading(false);
-    }
+  // View AI generated content
+  const handleViewContent = (content) => {
+    setSelectedContent(content);
+    setShowContentModal(true);
   };
 
-  // Regenerate AI content
-  const handleRegenerateAI = async (pdfId) => {
-    try {
-      const response = await axios.post(`${backendUrl}/api/pdf-ai/${pdfId}/regenerate`);
-      if (response.data.success) {
-        toast.success('AI content regeneration started!');
-        fetchPDFs(); // Refresh to show processing status
-      }
-    } catch (error) {
-      console.error('Error regenerating AI content:', error);
-      toast.error('Failed to regenerate AI content');
-    }
-  };
-
-  // Delete PDF
-  const handleDeletePDF = async (pdfId) => {
-    if (window.confirm('Are you sure you want to delete this PDF and all its AI content?')) {
+  // Delete AI processed PDF
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this AI processed content?')) {
       try {
-        const response = await axios.delete(`${backendUrl}/api/pdf-ai/${pdfId}`);
+        const response = await axios.delete(`${backendUrl}/api/ai-processing/${id}`);
         if (response.data.success) {
-          toast.success('PDF deleted successfully');
-          fetchPDFs(); // Refresh the list
+          toast.success('AI processed content deleted successfully');
+          fetchAIProcessedPDFs(); // Refresh the list
         }
       } catch (error) {
-        console.error('Error deleting PDF:', error);
-        toast.error('Failed to delete PDF');
+        console.error('Error deleting AI processed PDF:', error);
+        toast.error('Failed to delete AI processed content');
       }
     }
   };
@@ -201,178 +174,156 @@ const PDFNotesPage = () => {
       case 'failed':
         return 'AI Generation Failed';
       default:
-        return 'No AI Content';
+        return 'Unknown Status';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            📚 PDF Notes with AI
+            🧠 AI PDF Processing
           </h1>
-          <p className="text-gray-600 text-lg">
-            Upload your PDF notes and get AI-generated summaries, quizzes, and flashcards
+          <p className="text-gray-600 text-lg mb-6">
+            Upload PDFs to generate AI-powered study materials. Original PDFs are not stored - only the generated content is saved.
           </p>
+          
+          {/* Feature Highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white p-4 rounded-lg shadow-md text-center">
+              <div className="text-2xl mb-2">📝</div>
+              <h3 className="font-semibold text-gray-800">Smart Summaries</h3>
+              <p className="text-sm text-gray-600">AI-generated comprehensive summaries</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md text-center">
+              <div className="text-2xl mb-2">❓</div>
+              <h3 className="font-semibold text-gray-800">Auto Quizzes</h3>
+              <p className="text-sm text-gray-600">Multiple choice questions with explanations</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md text-center">
+              <div className="text-2xl mb-2">🃏</div>
+              <h3 className="font-semibold text-gray-800">Flashcards</h3>
+              <p className="text-sm text-gray-600">Interactive learning cards</p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-md text-center">
+              <div className="text-2xl mb-2">🔑</div>
+              <h3 className="font-semibold text-gray-800">Key Points</h3>
+              <p className="text-sm text-gray-600">Main takeaways highlighted</p>
+            </div>
+          </div>
         </div>
 
         {/* Upload Button */}
         <div className="text-center mb-8">
           <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
             <div className="text-6xl mb-4">🚀</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ready to Transform Your Notes?</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Process PDF with AI</h2>
             <p className="text-gray-600 mb-6">
               Upload any PDF and watch AI create comprehensive study materials in seconds!
             </p>
             <button
               onClick={() => setShowUploadModal(true)}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl flex items-center gap-3 mx-auto transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl flex items-center gap-3 mx-auto transition-all duration-300 text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <FiUpload size={24} /> Start Uploading PDF Notes
+              <FiUpload size={24} /> Start AI Processing
             </button>
             <p className="text-sm text-gray-500 mt-3">
-              Supports PDF files up to 50MB • No registration required
+              Supports PDF files up to 50MB • Original PDFs are not stored
             </p>
           </div>
         </div>
 
-        {/* Feature Highlights */}
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">What AI Will Generate for You</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-3">📝</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Smart Summaries</h4>
-              <p className="text-sm text-gray-600">200-300 word comprehensive summaries of your PDF content</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-3">❓</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Auto Quizzes</h4>
-              <p className="text-sm text-gray-600">5 multiple choice questions with detailed explanations</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-3">🃏</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Flashcards</h4>
-              <p className="text-sm text-gray-600">10 interactive learning cards for memorization</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
-              <div className="text-3xl mb-3">🔑</div>
-              <h4 className="font-semibold text-gray-800 mb-2">Key Points</h4>
-              <p className="text-sm text-gray-600">8-10 main takeaways and important concepts</p>
+        {/* AI Processed Content List */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-gray-800">AI Generated Content</h3>
+            <div className="text-sm text-gray-600">
+              Total: <span className="font-semibold text-purple-600">{aiProcessedPDFs.length}</span> items
             </div>
           </div>
-        </div>
 
-        {/* PDF List */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading PDFs...</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
+              <p className="mt-4 text-gray-600">Loading AI processed content...</p>
             </div>
-          ) : pdfs.length === 0 ? (
+          ) : aiProcessedPDFs.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">📄</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No PDFs Found</h3>
+              <div className="text-6xl mb-4">🧠</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">No AI Processed Content Yet</h3>
               <p className="text-gray-600 mb-4">
-                Upload your first PDF to get started with AI-generated content!
+                Upload your first PDF to start generating AI-powered study materials!
               </p>
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 mx-auto transition-colors"
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 mx-auto transition-colors"
               >
-                <FiUpload size={20} /> Upload First PDF
+                <FiUpload size={20} /> Process First PDF
               </button>
             </div>
           ) : (
-            <>
-              <div className="mb-6 text-center">
-                <p className="text-gray-600">
-                  Showing <span className="font-semibold text-blue-600">{pdfs.length}</span> PDFs
-                </p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {aiProcessedPDFs.map((content) => (
+                <div key={content._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  {/* Content Icon */}
+                  <div className="p-4 text-center border-b border-gray-100">
+                    <div className="text-4xl mb-2">🧠</div>
+                    <div className="text-xs text-gray-500 uppercase font-semibold">AI Generated</div>
+                  </div>
 
-              {/* PDF Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pdfs.map((pdf) => (
-                  <div key={pdf._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                    {/* PDF Icon */}
-                    <div className="p-4 text-center border-b border-gray-100">
-                      <div className="text-4xl mb-2">📄</div>
-                      <div className="text-xs text-gray-500 uppercase font-semibold">PDF</div>
+                  {/* Content */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{content.title}</h3>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{content.description}</p>
+
+                    <div className="space-y-2 text-sm text-gray-500 mb-3">
+                      <div className="flex items-center gap-2">
+                        <FiFileText size={14} />
+                        <span>{content.originalFileName}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>Subject: {content.subject}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span>By: {content.uploaderName}</span>
+                      </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{pdf.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{pdf.description}</p>
-
-                      <div className="space-y-2 text-sm text-gray-500 mb-3">
-                        <div className="flex items-center gap-2">
-                          <FiFileText size={14} />
-                          <span>{pdf.originalName}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span>Subject: {pdf.subject}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span>By: {pdf.uploadedBy}</span>
-                        </div>
+                    {/* AI Status */}
+                    <div className="mb-3 p-2 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(content.status).icon}
+                        <span className={`text-sm font-medium ${getStatusIcon(content.status).color}`}>
+                          {getStatusText(content.status)}
+                        </span>
                       </div>
+                    </div>
 
-                      {/* AI Status */}
-                      <div className="mb-3 p-2 bg-gray-50 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          {getStatusIcon(pdf.aiContentStatus).icon}
-                          <span className={`text-sm font-medium ${getStatusIcon(pdf.aiContentStatus).color}`}>
-                            {getStatusText(pdf.aiContentStatus)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex gap-2">
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      {content.status === 'completed' && (
                         <button
-                          onClick={() => window.open(pdf.cloudinaryUrl, '_blank')}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2"
+                          onClick={() => handleViewContent(content)}
+                          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2"
                         >
-                          <FiEye size={14} /> View
+                          <FiEye size={14} /> View Content
                         </button>
-                        
-                        {pdf.hasAIContent && (
-                          <button
-                            onClick={() => fetchAIContent(pdf._id)}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm transition-colors flex items-center justify-center gap-2"
-                          >
-                            <FiBookOpen size={14} /> AI Content
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Additional Actions */}
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleRegenerateAI(pdf._id)}
-                          className="flex-1 px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded text-sm transition-colors flex items-center justify-center gap-2"
-                          title="Regenerate AI Content"
-                        >
-                          <FiRefreshCw size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDeletePDF(pdf._id)}
-                          className="flex-1 px-3 py-2 border border-red-300 hover:bg-red-50 text-red-600 rounded text-sm transition-colors flex items-center justify-center gap-2"
-                          title="Delete PDF"
-                        >
-                          <FiTrash2 size={14} />
-                        </button>
-                      </div>
+                      )}
+                      
+                      <button
+                        onClick={() => handleDelete(content._id)}
+                        className="flex-1 px-3 py-2 border border-red-300 hover:bg-red-50 text-red-600 rounded text-sm transition-colors flex items-center justify-center gap-2"
+                        title="Delete Content"
+                      >
+                        <FiTrash2 size={14} />
+                      </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -382,7 +333,7 @@ const PDFNotesPage = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-800">Upload PDF Notes</h2>
+              <h2 className="text-2xl font-bold text-gray-800">Process PDF with AI</h2>
               <button
                 onClick={() => setShowUploadModal(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -397,7 +348,7 @@ const PDFNotesPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   PDF File *
                 </label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -409,13 +360,13 @@ const PDFNotesPage = () => {
                     <div className="space-y-2">
                       <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
                       <div className="text-gray-600">
-                        <span className="font-medium text-blue-600 hover:text-blue-500">
+                        <span className="font-medium text-purple-600 hover:text-purple-500">
                           Click to upload PDF
                         </span>
                         {' '}or drag and drop
                       </div>
                       <p className="text-xs text-gray-500">
-                        PDF files up to 50MB
+                        PDF files up to 50MB • Original file will not be stored
                       </p>
                     </div>
                   </label>
@@ -433,7 +384,7 @@ const PDFNotesPage = () => {
                   value={uploadForm.title}
                   onChange={handleInputChange}
                   placeholder="Enter PDF title"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -449,7 +400,7 @@ const PDFNotesPage = () => {
                   onChange={handleInputChange}
                   placeholder="Describe the PDF content"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
 
@@ -464,7 +415,7 @@ const PDFNotesPage = () => {
                   value={uploadForm.subject}
                   onChange={handleInputChange}
                   placeholder="e.g., Mathematics, Physics, etc."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -480,7 +431,7 @@ const PDFNotesPage = () => {
                   value={uploadForm.tags}
                   onChange={handleInputChange}
                   placeholder="e.g., calculus, derivatives, limits"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 />
               </div>
 
@@ -495,7 +446,7 @@ const PDFNotesPage = () => {
                   value={uploadForm.uploaderName}
                   onChange={handleInputChange}
                   placeholder="Enter your name"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   required
                 />
               </div>
@@ -512,17 +463,17 @@ const PDFNotesPage = () => {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
                   {uploading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Uploading...
+                      Processing...
                     </>
                   ) : (
                     <>
-                      <FiUpload size={16} />
-                      Upload PDF
+                      <FiZap size={16} />
+                      Process with AI
                     </>
                   )}
                 </button>
@@ -532,14 +483,14 @@ const PDFNotesPage = () => {
         </div>
       )}
 
-      {/* AI Content Modal */}
-      {showAIContent && aiContent && (
+      {/* Content Viewer Modal */}
+      {showContentModal && selectedContent && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center p-6 border-b border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800">AI Generated Content</h2>
               <button
-                onClick={() => setShowAIContent(false)}
+                onClick={() => setShowContentModal(false)}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
                 ✕
@@ -553,7 +504,7 @@ const PDFNotesPage = () => {
                   <FiBookOpen size={20} /> Summary
                 </h3>
                 <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-gray-700 leading-relaxed">{aiContent.summary}</p>
+                  <p className="text-gray-700 leading-relaxed">{selectedContent.summary}</p>
                 </div>
               </div>
 
@@ -561,8 +512,8 @@ const PDFNotesPage = () => {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Key Points</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {aiContent.keyPoints.map((point, index) => (
-                    <div key={index} className="bg-blue-50 rounded-lg p-3 border-l-4 border-blue-500">
+                  {selectedContent.keyPoints.map((point, index) => (
+                    <div key={index} className="bg-purple-50 rounded-lg p-3 border-l-4 border-purple-500">
                       <p className="text-gray-700">{point}</p>
                     </div>
                   ))}
@@ -575,7 +526,7 @@ const PDFNotesPage = () => {
                   <FiHelpCircle size={20} /> Quizzes
                 </h3>
                 <div className="space-y-4">
-                  {aiContent.quizzes.map((quiz, index) => (
+                  {selectedContent.quizzes.map((quiz, index) => (
                     <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
                       <h4 className="font-medium text-gray-800 mb-3">
                         {index + 1}. {quiz.question}
@@ -587,7 +538,7 @@ const PDFNotesPage = () => {
                               type="radio"
                               name={`quiz-${index}`}
                               id={`quiz-${index}-${optIndex}`}
-                              className="text-blue-600"
+                              className="text-purple-600"
                             />
                             <label htmlFor={`quiz-${index}-${optIndex}`} className="text-gray-700">
                               {option}
@@ -614,7 +565,7 @@ const PDFNotesPage = () => {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Flashcards</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {aiContent.flashcards.map((card, index) => (
+                  {selectedContent.flashcards.map((card, index) => (
                     <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="text-center">
                         <div className="text-sm text-gray-500 mb-2">Card {index + 1}</div>
@@ -633,4 +584,4 @@ const PDFNotesPage = () => {
   );
 };
 
-export default PDFNotesPage;
+export default AIProcessingPage;

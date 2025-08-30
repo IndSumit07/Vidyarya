@@ -33,6 +33,7 @@ const Navbar = () => {
           { key: "lectures", to: "/lectures", label: "Lectures" },
           { key: "todos", to: "/todos", label: "Todos" },
           { key: "pdf-notes", to: "/pdf-notes", label: "PDF Notes" },
+          { key: "ai-processing", to: "/ai-processing", label: "AI Processing" },
         ].map((link) => (
           <li
             key={link.key}

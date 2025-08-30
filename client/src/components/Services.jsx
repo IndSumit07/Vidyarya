@@ -54,6 +54,8 @@ const Services = () => {
           <Card title="My Todos" desc="View this week's todos by day." to="/todos/week" bg="#a7f3d0" icon="📆"/>
           <Card title="Discussions" desc="Ask questions and collaborate." to="/chat" bg="#a78bfa" icon="☁️"/>
           <Card title="Code Rooms" desc="Collaborative coding with real-time chat." to="/coderooms" bg="#fef3c7" icon="💻"/>
+          <Card title="PDF Notes with AI" desc="Upload PDFs and get AI-generated study materials." to="/pdf-notes" bg="#fecaca" icon="🤖"/>
+          <Card title="AI Processing" desc="Scan PDFs with AI to generate quizzes and flashcards." to="/ai-processing" bg="#fef3c7" icon="🧠"/>
         </div>
       </main>
     </div>
