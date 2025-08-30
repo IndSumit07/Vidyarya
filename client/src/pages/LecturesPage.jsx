@@ -7,7 +7,9 @@ import {
   FiDownload,
   FiFile,
   FiCalendar,
-  FiUser
+  FiUser,
+  FiPlay,
+  FiX
 } from 'react-icons/fi';
 import axios from 'axios';
 import UploadLectureModal from '../components/UploadLectureModal';
@@ -17,6 +19,8 @@ const LecturesPage = () => {
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState(null);
 
   // Fetch all lectures on mount
   useEffect(() => {
@@ -58,6 +62,14 @@ const LecturesPage = () => {
     } catch (error) {
       console.error('Error downloading lecture:', error);
       toast.error('Failed to download lecture');
+    }
+  };
+
+  // Play video
+  const handlePlayVideo = (lecture) => {
+    if (lecture.fileType === 'video') {
+      setCurrentVideo(lecture);
+      setShowVideoModal(true);
     }
   };
 
@@ -148,10 +160,42 @@ const LecturesPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {lectures.map((lecture) => (
                   <div key={lecture._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                    {/* File Icon */}
-                    <div className="p-4 text-center border-b border-gray-100">
-                      <div className="text-4xl mb-2">{getFileTypeIcon(lecture.fileType)}</div>
-                      <div className="text-xs text-gray-500 uppercase font-semibold">{lecture.fileType}</div>
+                    {/* Thumbnail or File Icon */}
+                    <div className="relative p-4 text-center border-b border-gray-100">
+                      {lecture.thumbnailUrl ? (
+                        <div className="relative">
+                          <img 
+                            src={lecture.thumbnailUrl} 
+                            alt={lecture.title}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          {lecture.fileType === 'video' && (
+                            <button
+                              onClick={() => handlePlayVideo(lecture)}
+                              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg hover:bg-opacity-70 transition-all group"
+                            >
+                              <div className="bg-white bg-opacity-90 rounded-full p-3 group-hover:scale-110 transition-transform">
+                                <FiPlay size={24} className="text-gray-800 ml-1" />
+                              </div>
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <div className="text-4xl mb-2">{getFileTypeIcon(lecture.fileType)}</div>
+                          <div className="text-xs text-gray-500 uppercase font-semibold">{lecture.fileType}</div>
+                          {lecture.fileType === 'video' && (
+                            <button
+                              onClick={() => handlePlayVideo(lecture)}
+                              className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg hover:bg-opacity-70 transition-all group"
+                            >
+                              <div className="bg-white bg-opacity-90 rounded-full p-3 group-hover:scale-110 transition-transform">
+                                <FiPlay size={24} className="text-gray-800 ml-1" />
+                              </div>
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Content */}
@@ -193,13 +237,23 @@ const LecturesPage = () => {
                         >
                           <FiDownload size={14} /> Download
                         </button>
-                        <button
-                          onClick={() => window.open(lecture.fileUrl, '_blank')}
-                          className="px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded text-sm transition-colors"
-                          title="View"
-                        >
-                          <FiEye size={14} />
-                        </button>
+                        {lecture.fileType === 'video' ? (
+                          <button
+                            onClick={() => handlePlayVideo(lecture)}
+                            className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm transition-colors flex items-center gap-2"
+                            title="Play Video"
+                          >
+                            <FiPlay size={14} />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => window.open(lecture.fileUrl, '_blank')}
+                            className="px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded text-sm transition-colors"
+                            title="View"
+                          >
+                            <FiEye size={14} />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -220,6 +274,48 @@ const LecturesPage = () => {
           }}
           backendUrl={backendUrl}
         />
+      )}
+
+      {/* Video Player Modal */}
+      {showVideoModal && currentVideo && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">{currentVideo.title}</h2>
+              <button
+                onClick={() => setShowVideoModal(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <FiX size={24} />
+              </button>
+            </div>
+
+            {/* Video Player */}
+            <div className="p-4">
+              <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+                <video
+                  controls
+                  className="w-full h-full"
+                  poster={currentVideo.thumbnailUrl || undefined}
+                >
+                  <source src={currentVideo.fileUrl} type={`video/${currentVideo.fileUrl.split('.').pop()}`} />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              
+              {/* Video Info */}
+              <div className="mt-4 space-y-2">
+                <p className="text-gray-600">{currentVideo.description}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>Uploaded by: {currentVideo.userName}</span>
+                  <span>Views: {currentVideo.views}</span>
+                  <span>Downloads: {currentVideo.downloads}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

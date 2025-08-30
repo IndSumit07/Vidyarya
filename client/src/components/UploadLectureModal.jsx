@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
-import { FiX, FiUpload } from 'react-icons/fi';
+import { FiX, FiUpload, FiImage } from 'react-icons/fi';
 import axios from 'axios';
 
 const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
@@ -15,6 +15,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
     uploaderName: userData?.name || ''
   });
   const [file, setFile] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const [uploading, setUploading] = useState(false);
 
   // Common subjects for suggestions
@@ -51,6 +52,23 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
     }
   };
 
+  const handleThumbnailChange = (e) => {
+    const selectedThumbnail = e.target.files[0];
+    if (selectedThumbnail) {
+      // Check file size (5MB limit for thumbnails)
+      if (selectedThumbnail.size > 5 * 1024 * 1024) {
+        toast.error('Thumbnail size must be less than 5MB');
+        return;
+      }
+      // Check if it's an image
+      if (!selectedThumbnail.type.startsWith('image/')) {
+        toast.error('Thumbnail must be an image file');
+        return;
+      }
+      setThumbnail(selectedThumbnail);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -69,6 +87,9 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       
       const formDataToSend = new FormData();
       formDataToSend.append('file', file);
+      if (thumbnail) {
+        formDataToSend.append('thumbnail', thumbnail);
+      }
       formDataToSend.append('title', formData.title);
       formDataToSend.append('description', formData.description);
       formDataToSend.append('subject', formData.subject);
@@ -109,6 +130,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       uploaderName: userData?.name || ''
     });
     setFile(null);
+    setThumbnail(null);
   };
 
   const getFileTypeIcon = (fileName) => {
@@ -186,6 +208,44 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
                     </div>
                     <p className="text-xs text-gray-500">
                       PDF, PPT, DOC, Video, or Image files up to 100MB
+                    </p>
+                  </div>
+                )}
+              </label>
+            </div>
+          </div>
+
+          {/* Thumbnail Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Thumbnail (Optional)
+            </label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+              <input
+                type="file"
+                onChange={handleThumbnailChange}
+                accept=".jpg,.jpeg,.png,.gif,.webp"
+                className="hidden"
+                id="thumbnail-upload"
+              />
+              <label htmlFor="thumbnail-upload" className="cursor-pointer">
+                {thumbnail ? (
+                  <div className="space-y-2">
+                    <div className="text-4xl">🖼️</div>
+                    <div className="font-medium text-gray-800">{thumbnail.name}</div>
+                    <div className="text-sm text-gray-500">{formatFileSize(thumbnail.size)}</div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <FiImage className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="text-gray-600">
+                      <span className="font-medium text-blue-600 hover:text-blue-500">
+                        Click to upload thumbnail
+                      </span>
+                      {' '}or drag and drop
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG, GIF, or WebP files up to 5MB
                     </p>
                   </div>
                 )}

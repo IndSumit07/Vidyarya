@@ -26,6 +26,10 @@ const lectureSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    thumbnailUrl: {
+      type: String,
+      default: null,
+    },
     fileType: {
       type: String,
       required: true,

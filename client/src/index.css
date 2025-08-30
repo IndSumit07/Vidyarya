@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom line-clamp utilities */
+/* Custom CSS for video aspect ratio */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+/* Line clamp utilities */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

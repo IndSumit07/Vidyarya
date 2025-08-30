@@ -33,28 +33,48 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit
   fileFilter: (req, file, cb) => {
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/vnd.ms-powerpoint",
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "video/mp4",
-      "video/avi",
-      "video/mov",
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-    ];
-    if (allowedTypes.includes(file.mimetype)) cb(null, true);
-    else cb(new Error("Invalid file type."), false);
+    // For main lecture file
+    if (file.fieldname === 'file') {
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "video/mp4",
+        "video/avi",
+        "video/mov",
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+      ];
+      if (allowedTypes.includes(file.mimetype)) cb(null, true);
+      else cb(new Error("Invalid file type."), false);
+    }
+    // For thumbnail file
+    else if (file.fieldname === 'thumbnail') {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (allowedTypes.includes(file.mimetype)) cb(null, true);
+      else cb(new Error("Invalid thumbnail type."), false);
+    }
+    else {
+      cb(new Error("Unexpected field"), false);
+    }
   },
 });
 
 // ✅ All routes are public - no authentication required
 lectureRouter.get("/", fetchAllLectures); // all lectures
 lectureRouter.get("/:lectureId", getLectureById);
-lectureRouter.post("/upload", upload.single("file"), uploadLecture); // no auth required
+lectureRouter.post("/upload", upload.fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'thumbnail', maxCount: 1 }
+]), uploadLecture); // no auth required
 lectureRouter.get("/download/:lectureId", downloadLecture); // no auth required
 lectureRouter.put("/:lectureId", updateLecture); // no auth required
 lectureRouter.delete("/:lectureId", deleteLecture); // no auth required

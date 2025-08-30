@@ -15,6 +15,7 @@ export const uploadLecture = async (req, res) => {
   try {
     const { title, description, subject, topic, tags, uploaderName } = req.body;
     const file = req.file;
+    const thumbnailFile = req.files?.thumbnail?.[0]; // Handle thumbnail file
 
     if (!file) {
       return res.status(400).json({
@@ -39,6 +40,29 @@ export const uploadLecture = async (req, res) => {
       fileUrl = `/uploads/${file.filename}`;
     }
 
+    // Handle thumbnail upload
+    let thumbnailUrl = null;
+    if (thumbnailFile) {
+      if (cloudinary) {
+        try {
+          const thumbnailResult = await cloudinary.uploader.upload(thumbnailFile.path, {
+            resource_type: "image",
+            folder: "lecture-thumbnails",
+            width: 300,
+            height: 200,
+            crop: "fill",
+          });
+          thumbnailUrl = thumbnailResult.secure_url;
+          fs.unlinkSync(thumbnailFile.path);
+        } catch (cloudinaryError) {
+          console.error("Thumbnail upload failed:", cloudinaryError);
+          thumbnailUrl = `/uploads/${thumbnailFile.filename}`;
+        }
+      } else {
+        thumbnailUrl = `/uploads/${thumbnailFile.filename}`;
+      }
+    }
+
     if (cloudinary && fileUrl.startsWith("http")) {
       fs.unlinkSync(file.path);
     }
@@ -59,6 +83,7 @@ export const uploadLecture = async (req, res) => {
       subject,
       topic,
       fileUrl,
+      thumbnailUrl,
       fileType,
       fileSize: file.size,
       userName: uploaderName || "Anonymous User",
