@@ -70,16 +70,16 @@ const WeeklyTodosPage = () => {
             const items = grouped.get(key) || [];
             return (
               <div key={key} className="rounded-2xl p-5 border border-[#2A4674]" style={{ background: pastel[i % pastel.length] }}>
-                <div className="font-bold text-lg">{dayNames[d.getDay()]} <span className="text-sm">{d.toLocaleDateString()}</span></div>
+                <div className="font-bold text-lg bg-transparent">{dayNames[d.getDay()]} <span className="text-sm bg-transparent">{d.toLocaleDateString()}</span></div>
                 {items.length === 0 ? (
-                  <div className="mt-4 text-sm text-black/70">No todos for this day.</div>
+                  <div className="mt-4 text-sm text-black/70 bg-transparent">No todos for this day.</div>
                 ) : (
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-4 space-y-3 bg-transparent">
                     {items.map((t) => (
                       <div key={t._id} className={`rounded-xl px-3 py-2 bg-white/70 flex items-center justify-between ${t.isCompleted?"line-through opacity-70":""}`}>
-                        <div>
-                          <div className="font-semibold">{t.title}</div>
-                          {t.description && <div className="text-sm text-black/70">{t.description}</div>}
+                        <div className="bg-transparent">
+                          <div className="font-semibold bg-transparent">{t.title}</div>
+                          {t.description && <div className="text-sm bg-transparent text-black/70">{t.description}</div>}
                         </div>
                         <button onClick={() => toggleComplete(t)} className="text-xs px-3 py-1 rounded-full border border-[#2A4674]">{t.isCompleted?"Undo":"Done"}</button>
                       </div>

@@ -32,24 +32,40 @@ const QuizResultPage = () => {
   const { score, total, answers, questions } = result;
 
   return (
-    <div>
-      <Navbar />
-      <div className="w-full max-w-3xl mx-auto p-6">
-        <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">Result: {score}/{total}</h1>
-        <div className="mt-6 grid gap-4">
-          {questions.map((q, idx) => {
-            const ans = answers.find((a) => a.questionIndex === idx);
-            const correct = q.answer;
-            return (
-              <div key={idx} className="border-2 border-[#2A4674] rounded-2xl p-5">
-                <h3 className="font-bold">Q{idx + 1}. {q.questionText}</h3>
-                <p className="mt-2"><span className="font-semibold">Your answer:</span> {ans?.selectedOption || "—"}</p>
-                <p><span className="font-semibold">Correct answer:</span> {correct}</p>
-                <p className={`mt-2 ${ans?.isCorrect?"text-green-600":"text-red-600"}`}>{ans?.isCorrect?"Correct":"Incorrect"}</p>
-              </div>
-            );
-          })}
+    <div style={{ backgroundImage: "url('../../public/quizaddbg.png')" }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat overflow-hidden">
+      <div className="w-full max-w-3xl mx-auto p-6 bg-transparent ">
+        <div className="text-center bg-transparent text-white mt-14 text-6xl font-monts font-black text-outline ">
+        Quiz <span className="bg-transparent text-yellow-500">Result</span>
+      </div>
+        <div className="mt-6 bg-transparent max-h-[500px] overflow-y-auto pr-2 pb-10">
+  <div className="grid gap-4 bg-transparent py-5">
+    {questions.map((q, idx) => {
+      const ans = answers.find((a) => a.questionIndex === idx);
+      const correct = q.answer;
+      return (
+        <div key={idx} className="border-2 border-[#2A4674] rounded-2xl p-5">
+          <h3 className="font-bold text-[#2A4674]">
+            Q{idx + 1}. {q.questionText}
+          </h3>
+          <p className="mt-2">
+            <span className="font-semibold">Your answer:</span>{" "}
+            {ans?.selectedOption || "—"}
+          </p>
+          <p>
+            <span className="font-semibold">Correct answer:</span> {correct}
+          </p>
+          <p
+            className={`mt-2 ${
+              ans?.isCorrect ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {ans?.isCorrect ? "Correct" : "Incorrect"}
+          </p>
         </div>
+      );
+    })}
+  </div>
+</div>
       </div>
     </div>
   );

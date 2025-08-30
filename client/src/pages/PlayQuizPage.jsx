@@ -68,8 +68,12 @@ const PlayQuizPage = () => {
   const q = questions[currentIndex];
 
   return (
-    <div>
-      <div className="w-full min-h-[calc(100vh-80px)] max-w-3xl mx-auto p-6">
+    <div style={{ backgroundImage: "url('../../public/quizbg.png')" }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat">
+      
+      <div className="w-[540px] min-h-[calc(100vh-80px)] max-w-3xl mx-auto p-6 bg-transparent py-5" >
+        <div className="text-center bg-transparent text-white mt-14 text-6xl font-monts font-black text-outline ">
+        Quiz <span className="bg-transparent text-yellow-500">Time</span>
+      </div>
         {loading ? (
           <Loader label="Preparing quiz..." />
         ) : q ? (

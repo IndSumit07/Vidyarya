@@ -65,15 +65,15 @@ const GenerateQuizPage = () => {
   };
 
   return (
-    <div>
-      <div className="w-full min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-[#210331] py-10">
-        <h1 className="font-monts font-bold text-5xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">
-          Generate Quiz
-        </h1>
+    <div style={{ backgroundImage: "url('../../public/quizbg.png')" }} className="min-h-[calc(100vh-80px)] h-auto w-full bg-cover bg-start bg-no-repeat flex justify-center items-center flex-col">
+      <div className="w-[550px] min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-transparent py-10">
+        <div className="text-center bg-transparent text-white mt-14 text-7xl font-monts font-black text-outline ">
+        Add <span className="bg-transparent text-yellow-500">Quiz</span>
+      </div>
 
         <form
           onSubmit={handleSubmit}
-          className="mt-16 w-[90%] max-w-2xl flex flex-col gap-6 shadow-lg p-8 rounded-2xl"
+          className="mt-10 w-[90%] max-w-2xl flex flex-col gap-6  py-8 rounded-2xl"
         >
           {/* Name + Num Questions */}
           <div className="flex gap-5">

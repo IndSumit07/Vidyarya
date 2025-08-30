@@ -4,7 +4,7 @@ import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader";
-
+import todobg from "../../public/todobg.png"
 const TodoPage = () => {
   const { backendUrl } = useContext(AppContext);
   const [todos, setTodos] = useState([]);
@@ -91,11 +91,11 @@ const TodoPage = () => {
   };
 
   return (
-    <div>
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">Todo List</h1>
+    <div style={{ backgroundImage: "url('../../public/todobg.png')" }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat">
+      <div className="w-full max-w-4xl mx-auto p-6 bg-transparent">
+        
 
-        <form onSubmit={addTodo} className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-4">
+        <form onSubmit={addTodo} className="mt-64   grid grid-cols-1 gap-3 md:grid-cols-4 bg-transparent">
           <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Title" value={title} onChange={(e)=>setTitle(e.target.value)} />
           <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" placeholder="Description" value={description} onChange={(e)=>setDescription(e.target.value)} />
           <input className="px-4 py-3 border-2 border-[#2A4674] rounded-full" type="date" value={dueDate} onChange={(e)=>setDueDate(e.target.value)} />
