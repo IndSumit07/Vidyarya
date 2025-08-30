@@ -85,8 +85,8 @@ export const uploadLecture = async (req, res) => {
       fileUrl,
       fileType,
       fileSize: file.size,
-      teacher: userId, // keep same field for compatibility
-      teacherName: user ? user.name : "Guest", // fallback if no user found
+      user: userId, // keep same field for compatibility
+      userName: user ? user.name : "Guest", // fallback if no user found
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
       isPublic: isPublic === "true",
     });
