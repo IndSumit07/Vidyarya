@@ -2,13 +2,25 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 class GeminiService {
   constructor() {
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('GEMINI_API_KEY is not set in environment variables');
+      throw new Error('GEMINI_API_KEY is required');
+    }
+    
     this.genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    console.log('GeminiService initialized successfully');
   }
 
   // Extract text from PDF using Gemini Vision
   async extractTextFromPDF(pdfBase64) {
     try {
+      console.log('Starting PDF text extraction...');
+      
+      if (!pdfBase64 || pdfBase64.length === 0) {
+        throw new Error('PDF base64 data is empty or invalid');
+      }
+
       const prompt = `
         Please extract and return the complete text content from this PDF document. 
         Return only the extracted text without any additional formatting or explanations.
@@ -17,6 +29,7 @@ class GeminiService {
         Ensure all text is properly extracted and readable.
       `;
 
+      console.log('Sending request to Gemini API...');
       const result = await this.model.generateContent([
         prompt,
         {
@@ -28,16 +41,29 @@ class GeminiService {
       ]);
 
       const response = await result.response;
-      return response.text();
+      const extractedText = response.text();
+      
+      console.log('PDF text extraction completed successfully');
+      console.log('Extracted text length:', extractedText.length);
+      
+      return extractedText;
     } catch (error) {
       console.error('Error extracting text from PDF:', error);
-      throw new Error('Failed to extract text from PDF');
+      throw new Error(`Failed to extract text from PDF: ${error.message}`);
     }
   }
 
   // Generate AI content from PDF text
   async generateAIContent(pdfText, subject) {
     try {
+      console.log('Starting AI content generation...');
+      console.log('Subject:', subject);
+      console.log('PDF text length:', pdfText.length);
+
+      if (!pdfText || pdfText.length === 0) {
+        throw new Error('PDF text is empty or invalid');
+      }
+
       const prompt = `
         You are an expert educational content creator. Based on the following PDF content about "${subject}", please generate:
 
@@ -73,39 +99,50 @@ class GeminiService {
         Make questions challenging but fair, and explanations clear and helpful.
       `;
 
+      console.log('Sending content generation request to Gemini API...');
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const content = response.text();
+
+      console.log('Raw Gemini response received');
+      console.log('Response length:', content.length);
 
       // Try to parse JSON response
       try {
         // Extract JSON from the response (sometimes Gemini adds extra text)
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          return JSON.parse(jsonMatch[0]);
+          const parsedContent = JSON.parse(jsonMatch[0]);
+          console.log('AI content generation completed successfully');
+          return parsedContent;
         } else {
           throw new Error('No JSON found in response');
         }
       } catch (parseError) {
         console.error('Error parsing Gemini response:', parseError);
         console.log('Raw response:', content);
-        throw new Error('Failed to parse AI response');
+        throw new Error('Failed to parse AI response - invalid JSON format');
       }
     } catch (error) {
       console.error('Error generating AI content:', error);
-      throw new Error('Failed to generate AI content');
+      throw new Error(`Failed to generate AI content: ${error.message}`);
     }
   }
 
   // Generate content directly from PDF (combines both methods)
   async processPDFAndGenerateContent(pdfBase64, subject) {
     try {
+      console.log('Starting complete PDF processing pipeline...');
+      console.log('Subject:', subject);
+      console.log('PDF base64 length:', pdfBase64 ? pdfBase64.length : 0);
+      
       // First extract text from PDF
       const extractedText = await this.extractTextFromPDF(pdfBase64);
       
       // Then generate AI content from the extracted text
       const aiContent = await this.generateAIContent(extractedText, subject);
       
+      console.log('PDF processing pipeline completed successfully');
       return aiContent;
     } catch (error) {
       console.error('Error processing PDF and generating content:', error);

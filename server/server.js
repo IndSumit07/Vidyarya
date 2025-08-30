@@ -64,6 +64,19 @@ app.use("/api/timetable", timetableRouter);
 app.use("/api/coderoom", coderoomRouter);
 app.use("/api/lecture", lectureRouter);
 
+// Debug route loading
+console.log('✅ Routes loaded:');
+console.log('  - /api/auth');
+console.log('  - /api/quiz');
+console.log('  - /api/chat');
+console.log('  - /api/todo');
+console.log('  - /api/pdf');
+console.log('  - /api/pdf-ai');
+console.log('  - /api/ai-processing');
+console.log('  - /api/timetable');
+console.log('  - /api/coderoom');
+console.log('  - /api/lecture');
+
 io.on("connection", (socket) => {
   socket.on("join-room", ({ roomId }) => {
     socket.join(roomId);
