@@ -155,7 +155,7 @@ const Login = () => {
           />
 
           <p
-            onClick={() => !loading && navigate("/reset-password")}
+            onClick={() => !loading && navigate("/forgot-password")}
             className="text-gray-400 text-sm cursor-pointer hover:underline hover:text-gray-200 transition"
           >
             Forgot password?

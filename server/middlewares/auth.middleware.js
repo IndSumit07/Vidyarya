@@ -5,10 +5,19 @@ const userAuth = async (req, res, next) => {
   
   console.log('Auth middleware - Cookies:', req.cookies);
   console.log('Auth middleware - Token:', token);
+  console.log('Auth middleware - Headers:', {
+    'user-agent': req.headers['user-agent'],
+    'origin': req.headers['origin'],
+    'referer': req.headers['referer']
+  });
 
   if (!token) {
     console.log('Auth middleware - No token found');
-    return res.status(401).json({ success: false, message: "Not Authorized. Login Again" });
+    return res.status(401).json({ 
+      success: false, 
+      message: "Not Authorized. Login Again",
+      error: "No authentication token found in cookies"
+    });
   }
 
   try {
@@ -25,11 +34,25 @@ const userAuth = async (req, res, next) => {
       return res.status(401).json({
         success: false,
         message: "Not Authorized. Login Again",
+        error: "Token does not contain user ID"
       });
     }
   } catch (error) {
     console.log('Auth middleware - JWT verification error:', error.message);
-    return res.status(401).json({ success: false, message: "Invalid token. Please login again." });
+    
+    // Provide more specific error messages
+    let errorMessage = "Invalid token. Please login again.";
+    if (error.name === 'TokenExpiredError') {
+      errorMessage = "Token expired. Please login again.";
+    } else if (error.name === 'JsonWebTokenError') {
+      errorMessage = "Invalid token format. Please login again.";
+    }
+    
+    return res.status(401).json({ 
+      success: false, 
+      message: errorMessage,
+      error: error.message 
+    });
   }
 };
 

@@ -30,12 +30,34 @@ const upload = multer({
 
 // PDF routes
 router.post('/upload', userAuth, upload.single('pdf'), uploadPDF);
-router.get('/test-auth', userAuth, (req, res) => {
-  res.json({ 
-    success: true, 
-    message: 'Authentication working', 
+// Test Cloudinary configuration
+router.get('/test-cloudinary', (req, res) => {
+  const cloudinaryConfig = {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Not Set',
+    api_key: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not Set',
+    api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not Set'
+  };
+  
+  res.json({
+    success: true,
+    message: 'Cloudinary configuration check',
+    config: cloudinaryConfig,
+    allSet: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
+  });
+});
+
+// Test authentication and cookies
+router.get('/test-auth-cookies', userAuth, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Authentication working',
     userId: req.body.userId,
-    cookies: req.cookies
+    cookies: req.cookies,
+    headers: {
+      'user-agent': req.headers['user-agent'],
+      'origin': req.headers['origin'],
+      'referer': req.headers['referer']
+    }
   });
 });
 router.get('/all', getAllPDFs);

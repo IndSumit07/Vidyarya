@@ -6,7 +6,7 @@ import Navbar from '../components/Navbar';
 import { FiUpload, FiSearch, FiDownload, FiEye, FiEdit, FiTrash2, FiTag, FiBookOpen } from 'react-icons/fi';
 
 const PDFNotesPage = () => {
-  const { backendUrl, isLoggedIn, userData } = useContext(AppContext);
+  const { backendUrl, isLoggedIn, userData, isLoading, refreshAuth, logout } = useContext(AppContext);
   const [pdfs, setPdfs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -31,10 +31,10 @@ const PDFNotesPage = () => {
   ];
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (isLoggedIn && !isLoading) {
       fetchAllPDFs();
     }
-  }, [isLoggedIn, currentPage, searchTerm, selectedSubject]);
+  }, [isLoggedIn, isLoading, currentPage, searchTerm, selectedSubject]);
 
   const fetchAllPDFs = async () => {
     try {
@@ -55,7 +55,11 @@ const PDFNotesPage = () => {
       }
     } catch (error) {
       console.error('Error fetching PDFs:', error);
-      toast.error('Failed to fetch PDFs');
+      if (error.response?.status === 401) {
+        refreshAuth();
+      } else {
+        toast.error('Failed to fetch PDFs');
+      }
     } finally {
       setLoading(false);
     }
@@ -108,7 +112,31 @@ const PDFNotesPage = () => {
       }
     } catch (error) {
       console.error('Error uploading PDF:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to upload PDF';
+      
+      // Provide more specific error messages
+      let errorMessage = 'Failed to upload PDF';
+      
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      // Check for specific error types
+      if (error.response?.status === 401) {
+        errorMessage = 'Authentication expired. Please login again.';
+        // Try to refresh authentication
+        refreshAuth();
+      } else if (error.response?.status === 500) {
+        if (errorMessage.includes('cloud storage') || errorMessage.includes('Cloudinary')) {
+          errorMessage = 'PDF upload service is currently unavailable. Please try again later.';
+        } else if (errorMessage.includes('database')) {
+          errorMessage = 'Error saving PDF information. Please try again.';
+        }
+      } else if (error.code === 'NETWORK_ERROR') {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
       toast.error(errorMessage);
     } finally {
       setUploading(false);
@@ -201,12 +229,37 @@ const PDFNotesPage = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-800 mb-4">Please Login</h1>
           <p className="text-gray-600">You need to be logged in to access PDF notes.</p>
+          <div className="flex gap-3 mt-4">
+            <button 
+              onClick={refreshAuth}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+            <button 
+              onClick={logout}
+              className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
     );

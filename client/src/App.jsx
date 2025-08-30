@@ -21,6 +21,7 @@ import IdeasPage from './pages/IdeasPage';
 import CustomizePage from './pages/CustomizePage';
 import WeeklyTodosPage from './pages/WeeklyTodosPage';
 import PDFNotesPage from './pages/PDFNotesPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import Navbar from './components/Navbar';
 
 const App = () => {
@@ -34,6 +35,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={<HomePage/>} />
         <Route path='/login' element={<LoginPage/>} />
+        <Route path='/forgot-password' element={<ForgotPasswordPage/>} />
         <Route path='/generate-quiz' element={<GenerateQuizPage/>} />
         <Route path='/quizzes' element={<QuizListPage/>} />
         <Route path='/quiz/:quizID' element={<PlayQuizPage/>} />

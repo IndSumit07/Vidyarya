@@ -2,9 +2,17 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import vidyarya from "../../public/vidyarya2.png"
+import { FiLogOut } from "react-icons/fi";
+
 const Navbar = () => {
-  const { userData, isLoggedIn } = useContext(AppContext);
+  const { userData, isLoggedIn, logout } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState("home");
+  
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+    }
+  };
   
   return (
     <nav className="flex justify-between items-center w-full h-[80px] px-10">
@@ -22,6 +30,7 @@ const Navbar = () => {
           { key: "quizzes", to: "/quizzes", label: "Quizzes" },
           { key: "coderoom", to: "/coderooms", label: "Coderooms" },
           { key: "chat", to: "/chat", label: "Chatrooms" },
+          { key: "lectures", to: "/lectures", label: "Lectures" },
           { key: "todos", to: "/todos", label: "Todos" },
           { key: "pdf-notes", to: "/pdf-notes", label: "PDF Notes" },
         ].map((link) => (
@@ -40,7 +49,7 @@ const Navbar = () => {
       </ul>
 
       {/* Auth Section */}
-      <div className="cursor-pointer">
+      <div className="flex items-center gap-4">
         {!isLoggedIn ? (
           <Link to="/login">
             <button className="bg-[#2A4674] text-white px-4 py-2 font-chakra rounded-full text-lg font-semibold hover:opacity-80">
@@ -48,9 +57,18 @@ const Navbar = () => {
             </button>
           </Link>
         ) : (
-          <Link to="/dashboard" className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2A4674] text-white font-chakra text-xl font-semibold">
-            {userData?.name?.charAt(0)?.toUpperCase() || "U"}
-          </Link>
+          <>
+            <Link to="/dashboard" className="w-10 h-10 flex items-center justify-center rounded-full bg-[#2A4674] text-white font-chakra text-xl font-semibold">
+              {userData?.name?.charAt(0)?.toUpperCase() || "U"}
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-full transition-colors flex items-center gap-2"
+            >
+              <FiLogOut size={16} />
+              Logout
+            </button>
+          </>
         )}
       </div>
     </nav>

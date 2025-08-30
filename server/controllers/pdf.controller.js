@@ -23,6 +23,21 @@ export const uploadPDF = async (req, res) => {
 
     console.log('PDF Upload - Proceeding with user ID:', userId);
 
+    // Check Cloudinary configuration
+    console.log('PDF Upload - Cloudinary config check:', {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Not Set',
+      api_key: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Not Set',
+      api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Not Set'
+    });
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('PDF Upload - Cloudinary environment variables not configured');
+      return res.status(500).json({ 
+        success: false, 
+        message: 'PDF upload service not configured. Please contact administrator.' 
+      });
+    }
+
     // Upload to Cloudinary
     const uploadPromise = new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream({
@@ -35,6 +50,7 @@ export const uploadPDF = async (req, res) => {
           console.error('Cloudinary upload error:', error);
           reject(new Error('Failed to upload to Cloudinary: ' + error.message));
         } else {
+          console.log('PDF Upload - Cloudinary upload successful:', result);
           resolve(result);
         }
       });
@@ -59,6 +75,7 @@ export const uploadPDF = async (req, res) => {
     });
 
     await newPDF.save();
+    console.log('PDF Upload - PDF saved to database successfully');
 
     res.status(201).json({
       success: true,
@@ -67,9 +84,21 @@ export const uploadPDF = async (req, res) => {
     });
   } catch (error) {
     console.error('Error uploading PDF:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Error uploading PDF';
+    if (error.message.includes('Cloudinary')) {
+      errorMessage = 'Error uploading to cloud storage. Please try again.';
+    } else if (error.message.includes('database')) {
+      errorMessage = 'Error saving PDF information. Please try again.';
+    } else {
+      errorMessage = error.message;
+    }
+    
     res.status(500).json({
       success: false,
-      message: 'Error uploading PDF: ' + error.message
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

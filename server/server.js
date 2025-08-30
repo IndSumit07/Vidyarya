@@ -2,6 +2,8 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
 import connectDB from "./config/mongodb.config.js";
 import userRouter from "./routes/user.routes.js";
 import quizRouter from "./routes/quiz.routes.js";
@@ -10,6 +12,7 @@ import todoRouter from "./routes/todo.routes.js";
 import pdfRouter from "./routes/pdf.routes.js";
 import timetableRouter from "./routes/timetable.routes.js";
 import coderoomRouter from "./routes/coderoom.routes.js";
+import lectureRouter from "./routes/lecture.routes.js";
 import http from "http";
 // socket.io will be required at runtime; ensure dependency installed
 import { Server as SocketIOServer } from "socket.io";
@@ -22,6 +25,11 @@ const io = new SocketIOServer(server, {
     credentials: true,
   },
 });
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // make io available to controllers
 app.set("io", io);
 const PORT = process.env.PORT || 4000;
@@ -36,6 +44,9 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get("/", (req, res) => {
   res.send("Server is running...");
 });
@@ -47,6 +58,7 @@ app.use("/api/todo", todoRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/timetable", timetableRouter);
 app.use("/api/coderoom", coderoomRouter);
+app.use("/api/lecture", lectureRouter);
 
 io.on("connection", (socket) => {
   socket.on("join-room", ({ roomId }) => {

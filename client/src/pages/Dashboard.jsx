@@ -1,10 +1,16 @@
 import React, { useContext } from "react";
-import Navbar from "../components/Navbar";
 import { AppContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
 
 const Dashboard = () => {
-  const { userData } = useContext(AppContext);
+  const { userData, logout } = useContext(AppContext);
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+    }
+  };
 
   return (
     <div>
@@ -25,7 +31,17 @@ const Dashboard = () => {
             <Link to="/quizzes" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Quizzes</Link>
             <Link to="/chat" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Chatrooms</Link>
             <Link to="/coderooms" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Code Rooms</Link>
+            <Link to="/lectures" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Lectures</Link>
             <Link to="/todos" className="px-4 py-2 rounded-full border-2 border-[#2A4674] text-center">Your Todos</Link>
+            
+            {/* Logout Button */}
+            <button 
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-full border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-2"
+            >
+              <FiLogOut size={16} />
+              Logout
+            </button>
           </nav>
         </aside>
 
@@ -46,6 +62,11 @@ const Dashboard = () => {
               <h3 className="font-bold text-xl">Your Code Rooms</h3>
               <p className="text-gray-600 mt-2">Collaborative coding with real-time chat.</p>
               <Link to="/coderooms" className="inline-block mt-4 px-4 py-2 bg-[#2A4674] text-white rounded-full">Open</Link>
+            </div>
+            <div className="border-2 border-[#2A4674] rounded-2xl p-5">
+              <h3 className="font-bold text-xl">Your Lectures</h3>
+              <p className="text-gray-600 mt-2">Upload and manage lecture materials.</p>
+              <Link to="/lectures" className="inline-block mt-4 px-4 py-2 bg-[#2A4674] text-white rounded-full">Open</Link>
             </div>
             <div className="border-2 border-[#2A4674] rounded-2xl p-5">
               <h3 className="font-bold text-xl">Your Todos</h3>
