@@ -27,7 +27,7 @@ import Navbar from './components/Navbar';
 
 const App = () => {
   const location = useLocation();
-  const hideNavbarRoutes = ["/login", "/dashboard"];
+  const hideNavbarRoutes = ["/login", "/dashboard", "/forgot-password"];
   const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
   return (
     <div>

@@ -113,7 +113,7 @@ const Login = () => {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 focus:bg-[#2f2f2f] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
+                className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
                 required
               >
                 <option value="student">Student</option>
@@ -126,7 +126,7 @@ const Login = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
-                className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#2f2f2f] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
+                className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
                 required
               />
 
@@ -141,7 +141,7 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#2f2f2f] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
+            className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
             required
           />
           <input
@@ -150,7 +150,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#2f2f2f] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
+            className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
             required
           />
 
@@ -163,7 +163,7 @@ const Login = () => {
 
           <button
             disabled={loading}
-            className="w-full py-2 bg-[#333333] hover:bg-[#2A4674] text-white font-semibold rounded-xl shadow-lg transition-all duration-200 border border-white/20"
+            className="w-full py-2 bg-[#152b50] hover:bg-[#2A4674] text-white font-semibold rounded-xl shadow-lg transition-all duration-200 border border-white/20"
           >
             {loading
               ? "Please wait..."

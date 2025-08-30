@@ -5,7 +5,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi';
 import axios from 'axios';
 
 const ForgotPasswordPage = () => {
-  const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
+  const [step, setStep] = useState(3); // 1: email, 2: OTP, 3: new password
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -143,16 +143,16 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-[#F5F5EF] flex items-center justify-center p-4">
+      <div className="bg-[#2A4674] rounded-2xl shadow-xl p-8 w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/login" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4">
-            <FiArrowLeft size={16} />
+        <div className="text-center mb-8 bg-transparent">
+          <Link to="/login" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4 bg-transparent">
+            <FiArrowLeft size={16} className='bg-transparent'/>
             Back to Login
           </Link>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Forgot Password</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-white mb-2">Forgot Password</h1>
+          <p className="text-white">
             {step === 1 && "Enter your email to receive a verification code"}
             {step === 2 && "Enter the 6-digit code sent to your email"}
             {step === 3 && "Create a new password for your account"}
@@ -161,64 +161,60 @@ const ForgotPasswordPage = () => {
 
         {/* Step 1: Email Input */}
         {step === 1 && (
-          <form onSubmit={handleSendOTP} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          <form onSubmit={handleSendOTP} className="bg-transparent">
+              <label className="block text-sm font-medium text-white mb-4 bg-transparent">
                 Email Address
               </label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
                   placeholder="Enter your email"
                   required
                 />
-              </div>
-            </div>
             
-            <button
+            <div className='bg-transparent'>
+              <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-[#152b50] text-white py-3 rounded-lg font-semibold hover:bg-[#2A4674] disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-8 border-2 border-white/20"
             >
               {loading ? 'Sending...' : 'Send Verification Code'}
             </button>
+            </div>
           </form>
         )}
 
         {/* Step 2: OTP Verification */}
         {step === 2 && (
-          <form onSubmit={handleVerifyOTP} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          <form onSubmit={handleVerifyOTP} className=" bg-transparent">
+              <label className="block text-sm font-medium text-white mb-4 bg-transparent ">
                 Verification Code
               </label>
               <input
                 type="text"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-2xl tracking-widest"
+                className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm"
                 placeholder="000000"
                 maxLength={6}
                 required
               />
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-white mt-4 mb-4">
                 Enter the 6-digit code sent to {email}
               </p>
-            </div>
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2 bg-[#152b50] hover:bg-[#2A4674] text-white font-semibold rounded-xl shadow-lg transition-all duration-200 border border-white/20 mb-4"
             >
               {loading ? 'Verifying...' : 'Verify Code'}
             </button>
 
-            <div className="text-center">
+            <div className="text-center bg-transparent">
               <button
                 type="button"
                 onClick={resendOTP}
@@ -233,21 +229,19 @@ const ForgotPasswordPage = () => {
 
         {/* Step 3: New Password */}
         {step === 3 && (
-          <form onSubmit={handleResetPassword} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          <form onSubmit={handleResetPassword} className="bg-transparent">
+              <label className="block text-sm font-medium text-white mb-4 bg-transparent">
                 New Password
+                
               </label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
+              <input
                   type={showPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter new password"
+                  className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm mb-8"
                   required
                 />
+                
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -255,20 +249,15 @@ const ForgotPasswordPage = () => {
                 >
                   {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                 </button>
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-white mb-4 bg-transparent">
                 Confirm New Password
               </label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-white/20 rounded-xl bg-[#2A4674] text-gray-200 placeholder-gray-500 focus:bg-[#152b50] outline-none focus:ring-2 focus:ring-gray-500 transition-all shadow-sm mb-8"
                   placeholder="Confirm new password"
                   required
                 />
@@ -279,13 +268,11 @@ const ForgotPasswordPage = () => {
                 >
                   {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
                 </button>
-              </div>
-            </div>
             
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2 bg-[#152b50] hover:bg-[#2A4674] text-white font-semibold rounded-xl shadow-lg transition-all duration-200 border border-white/20"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
@@ -293,8 +280,8 @@ const ForgotPasswordPage = () => {
         )}
 
         {/* Progress Steps */}
-        <div className="mt-8 flex justify-center">
-          <div className="flex items-center space-x-2">
+        <div className="mt-8 flex justify-center bg-transparent">
+          <div className="flex items-center space-x-2 bg-transparent">
             {[1, 2, 3].map((stepNumber) => (
               <div
                 key={stepNumber}
