@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
-import { FiX, FiUpload, FiFile, FiTag, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiX, FiUpload } from 'react-icons/fi';
 import axios from 'axios';
 
 const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
@@ -16,7 +16,6 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
   });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   // Common subjects for suggestions
   const commonSubjects = [
@@ -76,6 +75,8 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       formDataToSend.append('topic', formData.topic);
       formDataToSend.append('tags', formData.tags);
       formDataToSend.append('isPublic', formData.isPublic);
+      // ✅ Add uploaderName instead of teacherName
+      formDataToSend.append('uploaderName', userData?.name || 'Unknown User');
 
       const response = await axios.post(`${backendUrl}/api/lecture/upload`, formDataToSend, {
         withCredentials: true,
@@ -86,7 +87,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
 
       if (response.data.success) {
         toast.success('Lecture uploaded successfully!');
-        onSuccess();
+        onSuccess(response.data.lecture); // ✅ pass lecture back
         resetForm();
       }
     } catch (error) {
@@ -305,15 +306,17 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
             </label>
           </div>
 
-          {/* Teacher Info */}
+          {/* ✅ Uploaded By (not Teacher Info) */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                {userData?.name?.charAt(0)?.toUpperCase() || 'T'}
+                {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div>
                 <div className="font-medium text-gray-800">{userData?.name}</div>
-                <div className="text-sm text-gray-500">Teacher • {userData?.email}</div>
+                <div className="text-sm text-gray-500">
+                  Uploaded by • {userData?.email}
+                </div>
               </div>
             </div>
           </div>

@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
-import { FiSearch, FiFilter, FiPlus, FiEye, FiDownload, FiEdit, FiTrash2, FiFile, FiCalendar, FiUser } from 'react-icons/fi';
+import {
+  FiSearch,
+  FiPlus,
+  FiEye,
+  FiDownload,
+  FiFile,
+  FiCalendar,
+  FiUser
+} from 'react-icons/fi';
 import axios from 'axios';
 import UploadLectureModal from '../components/UploadLectureModal';
 
@@ -44,7 +52,9 @@ const LecturesPage = () => {
       return;
     }
     try {
-      const response = await axios.get(`${backendUrl}/api/lecture/subjects/${subject}/topics`);
+      const response = await axios.get(
+        `${backendUrl}/api/lecture/subjects/${subject}/topics`
+      );
       if (response.data.success) {
         setTopics(response.data.topics);
       }
@@ -67,8 +77,10 @@ const LecturesPage = () => {
       if (selectedTopic) params.append('topic', selectedTopic);
       if (selectedFileType) params.append('fileType', selectedFileType);
 
-      const response = await axios.get(`${backendUrl}/api/lecture/search?${params}`);
-      
+      const response = await axios.get(
+        `${backendUrl}/api/lecture/search?${params}`
+      );
+
       if (response.data.success) {
         setLectures(response.data.lectures);
         setTotalPages(response.data.totalPages);
@@ -119,10 +131,13 @@ const LecturesPage = () => {
   // Download lecture
   const handleDownload = async (lectureId) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/lecture/download/${lectureId}`, {
-        withCredentials: true
-      });
-      
+      const response = await axios.get(
+        `${backendUrl}/api/lecture/download/${lectureId}`,
+        {
+          withCredentials: true
+        }
+      );
+
       if (response.data.success) {
         // Create a temporary link to download the file
         const link = document.createElement('a');
@@ -163,7 +178,9 @@ const LecturesPage = () => {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return (
+      parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    );
   };
 
   // Format date
@@ -180,8 +197,12 @@ const LecturesPage = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">📚 Lecture Library</h1>
-          <p className="text-gray-600 text-lg">Search and discover educational content from teachers</p>
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            📚 Lecture Library
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Search and discover educational content shared by users
+          </p>
         </div>
 
         {/* Search and Filters */}
@@ -196,7 +217,9 @@ const LecturesPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                onKeyPress={(e) =>
+                  e.key === 'Enter' && handleSearch()
+                }
               />
             </div>
 
@@ -208,7 +231,9 @@ const LecturesPage = () => {
             >
               <option value="">All Subjects</option>
               {subjects.map((subject, index) => (
-                <option key={index} value={subject}>{subject}</option>
+                <option key={index} value={subject}>
+                  {subject}
+                </option>
               ))}
             </select>
 
@@ -224,7 +249,9 @@ const LecturesPage = () => {
             >
               <option value="">All Topics</option>
               {topics.map((topic, index) => (
-                <option key={index} value={topic}>{topic}</option>
+                <option key={index} value={topic}>
+                  {topic}
+                </option>
               ))}
             </select>
 
@@ -253,8 +280,9 @@ const LecturesPage = () => {
             >
               Clear Filters
             </button>
-            
-            {isLoggedIn && userData?.role === 'teacher' && (
+
+            {/* ✅ Allow any logged-in user to upload */}
+            {isLoggedIn && (
               <button
                 onClick={() => setShowUploadModal(true)}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -276,13 +304,18 @@ const LecturesPage = () => {
           ) : lectures.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📚</div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">No Lectures Found</h3>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No Lectures Found
+              </h3>
               <p className="text-gray-600 mb-4">
-                {searchQuery || selectedSubject || selectedTopic || selectedFileType
+                {searchQuery ||
+                selectedSubject ||
+                selectedTopic ||
+                selectedFileType
                   ? 'Try adjusting your search criteria'
                   : 'Be the first to upload a lecture!'}
               </p>
-              {isLoggedIn && userData?.role === 'teacher' && (
+              {isLoggedIn && (
                 <button
                   onClick={() => setShowUploadModal(true)}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
@@ -296,18 +329,29 @@ const LecturesPage = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {lectures.map((lecture) => (
-                  <div key={lecture._id} className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  <div
+                    key={lecture._id}
+                    className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                  >
                     {/* File Type Icon */}
                     <div className="p-4 text-center border-b border-gray-100">
-                      <div className="text-4xl mb-2">{getFileTypeIcon(lecture.fileType)}</div>
-                      <div className="text-xs text-gray-500 uppercase font-semibold">{lecture.fileType}</div>
+                      <div className="text-4xl mb-2">
+                        {getFileTypeIcon(lecture.fileType)}
+                      </div>
+                      <div className="text-xs text-gray-500 uppercase font-semibold">
+                        {lecture.fileType}
+                      </div>
                     </div>
 
                     {/* Content */}
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{lecture.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{lecture.description}</p>
-                      
+                      <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">
+                        {lecture.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                        {lecture.description}
+                      </p>
+
                       <div className="space-y-2 text-sm text-gray-500">
                         <div className="flex items-center gap-2">
                           <FiFile size={14} />
@@ -315,7 +359,8 @@ const LecturesPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <FiUser size={14} />
-                          <span>{lecture.teacherName}</span>
+                          {/* ✅ show uploaderName */}
+                          <span>{lecture.uploaderName || 'Unknown User'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FiCalendar size={14} />
@@ -352,7 +397,9 @@ const LecturesPage = () => {
                           Download
                         </button>
                         <button
-                          onClick={() => window.open(lecture.fileUrl, '_blank')}
+                          onClick={() =>
+                            window.open(lecture.fileUrl, '_blank')
+                          }
                           className="px-3 py-2 border border-gray-300 hover:bg-gray-50 rounded text-sm transition-colors"
                           title="View"
                         >
@@ -375,21 +422,23 @@ const LecturesPage = () => {
                     >
                       Previous
                     </button>
-                    
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => searchLectures(page)}
-                        className={`px-4 py-2 border rounded-lg ${
-                          currentPage === page
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                    
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          onClick={() => searchLectures(page)}
+                          className={`px-4 py-2 border rounded-lg ${
+                            currentPage === page
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+
                     <button
                       onClick={() => searchLectures(currentPage + 1)}
                       disabled={currentPage === totalPages}
@@ -412,7 +461,7 @@ const LecturesPage = () => {
           onSuccess={() => {
             setShowUploadModal(false);
             searchLectures();
-          }}  
+          }}
           backendUrl={backendUrl}
         />
       )}
@@ -421,5 +470,3 @@ const LecturesPage = () => {
 };
 
 export default LecturesPage;
-
-
