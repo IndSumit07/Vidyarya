@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AppContext } from '../context/AppContext';
 import { toast } from 'react-toastify';
 import {
-  FiSearch,
   FiPlus,
   FiEye,
   FiDownload,
@@ -14,64 +13,23 @@ import axios from 'axios';
 import UploadLectureModal from '../components/UploadLectureModal';
 
 const LecturesPage = () => {
-  const { backendUrl, isLoggedIn } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const [lectures, setLectures] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [selectedFileType, setSelectedFileType] = useState('');
-  const [subjects, setSubjects] = useState([]);
-  const [topics, setTopics] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [showUploadModal, setShowUploadModal] = useState(false);
 
-  // Fetch subjects + lectures on mount
+  // Fetch all lectures on mount
   useEffect(() => {
-    fetchSubjects();
     fetchAllLectures();
   }, []);
 
-  // Fetch subjects
-  const fetchSubjects = async () => {
-    try {
-      const response = await axios.get(`${backendUrl}/api/lecture/subjects`);
-      if (response.data.success) {
-        setSubjects(response.data.subjects);
-      }
-    } catch (error) {
-      console.error('Error fetching subjects:', error);
-    }
-  };
-
-  // Fetch topics based on subject
-  const fetchTopics = async (subject) => {
-    if (!subject) {
-      setTopics([]);
-      return;
-    }
-    try {
-      const response = await axios.get(
-        `${backendUrl}/api/lecture/subjects/${subject}/topics`
-      );
-      if (response.data.success) {
-        setTopics(response.data.topics);
-      }
-    } catch (error) {
-      console.error('Error fetching topics:', error);
-    }
-  };
-
-  // ✅ Fetch all lectures (no filters, public)
+  // ✅ Fetch all lectures (no filters, no pagination)
   const fetchAllLectures = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${backendUrl}/api/lecture/`);
       if (response.data.success) {
         setLectures(response.data.lectures);
-        setTotalPages(1); // no pagination for fetchAll
-        setCurrentPage(1);
       }
     } catch (error) {
       console.error('Error fetching all lectures:', error);
@@ -81,79 +39,11 @@ const LecturesPage = () => {
     }
   };
 
-  // 🔎 Search lectures with filters
-  const searchLectures = async (page = 1) => {
-    try {
-      setLoading(true);
-
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: '12'
-      });
-
-      if (searchQuery) params.append('query', searchQuery);
-      if (selectedSubject) params.append('subject', selectedSubject);
-      if (selectedTopic) params.append('topic', selectedTopic);
-      if (selectedFileType) params.append('fileType', selectedFileType);
-
-      const response = await axios.get(
-        `${backendUrl}/api/lecture/search?${params}`
-      );
-
-      if (response.data.success) {
-        setLectures(response.data.lectures);
-        setTotalPages(response.data.totalPages);
-        setCurrentPage(page);
-      }
-    } catch (error) {
-      console.error('Error searching lectures:', error);
-      toast.error('Failed to search lectures');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Handle search
-  const handleSearch = () => {
-    if (!searchQuery && !selectedSubject && !selectedTopic && !selectedFileType) {
-      fetchAllLectures(); // 👈 if nothing selected, load all
-    } else {
-      searchLectures(1);
-    }
-  };
-
-  // Handle subject change
-  const handleSubjectChange = (subject) => {
-    setSelectedSubject(subject);
-    setSelectedTopic('');
-    setTopics([]);
-    if (subject) {
-      fetchTopics(subject);
-    }
-    handleSearch();
-  };
-
-  // Handle other filters
-  const handleFilterChange = () => {
-    handleSearch();
-  };
-
-  // Clear filters
-  const clearFilters = () => {
-    setSearchQuery('');
-    setSelectedSubject('');
-    setSelectedTopic('');
-    setSelectedFileType('');
-    setTopics([]);
-    fetchAllLectures(); // 👈 reload all
-  };
-
   // Download lecture
   const handleDownload = async (lectureId) => {
     try {
       const response = await axios.get(
-        `${backendUrl}/api/lecture/download/${lectureId}`,
-        { withCredentials: true }
+        `${backendUrl}/api/lecture/download/${lectureId}`
       );
 
       if (response.data.success) {
@@ -210,89 +100,18 @@ const LecturesPage = () => {
             📚 Lecture Library
           </h1>
           <p className="text-gray-600 text-lg">
-            Search and discover educational content shared by users
+            Access and share educational content with everyone
           </p>
         </div>
 
-        {/* Search + Filters */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Search */}
-            <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search lectures..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              />
-            </div>
-
-            {/* Subject */}
-            <select
-              value={selectedSubject}
-              onChange={(e) => handleSubjectChange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((subject, i) => (
-                <option key={i} value={subject}>{subject}</option>
-              ))}
-            </select>
-
-            {/* Topic */}
-            <select
-              value={selectedTopic}
-              onChange={(e) => {
-                setSelectedTopic(e.target.value);
-                handleFilterChange();
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              disabled={!selectedSubject}
-            >
-              <option value="">All Topics</option>
-              {topics.map((topic, i) => (
-                <option key={i} value={topic}>{topic}</option>
-              ))}
-            </select>
-
-            {/* File Type */}
-            <select
-              value={selectedFileType}
-              onChange={(e) => {
-                setSelectedFileType(e.target.value);
-                handleFilterChange();
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">All Types</option>
-              <option value="pdf">PDF</option>
-              <option value="ppt">PowerPoint</option>
-              <option value="doc">Document</option>
-              <option value="video">Video</option>
-              <option value="image">Image</option>
-            </select>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <button
-              onClick={clearFilters}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Clear Filters
-            </button>
-
-            {isLoggedIn && (
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
-              >
-                <FiPlus size={20} /> Upload Lecture
-              </button>
-            )}
-          </div>
+        {/* Upload Button - Always visible */}
+        <div className="text-center mb-8">
+          <button
+            onClick={() => setShowUploadModal(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg flex items-center gap-3 mx-auto transition-colors text-lg font-semibold"
+          >
+            <FiPlus size={24} /> Upload New Lecture
+          </button>
         </div>
 
         {/* Results */}
@@ -307,21 +126,24 @@ const LecturesPage = () => {
               <div className="text-6xl mb-4">📚</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">No Lectures Found</h3>
               <p className="text-gray-600 mb-4">
-                {searchQuery || selectedSubject || selectedTopic || selectedFileType
-                  ? 'Try adjusting your search criteria'
-                  : 'Be the first to upload a lecture!'}
+                Be the first to upload a lecture!
               </p>
-              {isLoggedIn && (
-                <button
-                  onClick={() => setShowUploadModal(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 transition-colors"
-                >
-                  <FiPlus size={20} /> Upload First Lecture
-                </button>
-              )}
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center gap-2 mx-auto transition-colors"
+              >
+                <FiPlus size={20} /> Upload First Lecture
+              </button>
             </div>
           ) : (
             <>
+              {/* Lecture Count */}
+              <div className="mb-6 text-center">
+                <p className="text-gray-600">
+                  Showing <span className="font-semibold text-blue-600">{lectures.length}</span> lectures
+                </p>
+              </div>
+
               {/* Lecture Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {lectures.map((lecture) => (
@@ -342,7 +164,7 @@ const LecturesPage = () => {
                           <FiFile size={14} /><span>{formatFileSize(lecture.fileSize)}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <FiUser size={14} /><span>{lecture.uploaderName || 'Unknown User'}</span>
+                          <FiUser size={14} /><span>{lecture.userName || 'Anonymous User'}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FiCalendar size={14} /><span>{formatDate(lecture.createdAt)}</span>
@@ -383,41 +205,6 @@ const LecturesPage = () => {
                   </div>
                 ))}
               </div>
-
-              {/* Pagination (only when using search) */}
-              {totalPages > 1 && (
-                <div className="mt-8 flex justify-center">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => searchLectures(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => searchLectures(page)}
-                        className={`px-4 py-2 border rounded-lg ${
-                          currentPage === page
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => searchLectures(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </div>

@@ -1,5 +1,4 @@
 import Lecture from "../models/lecture.model.js";
-import { User } from "../models/user.model.js";
 import fs from "fs";
 
 // Try to import cloudinary, but handle if it's not configured
@@ -11,11 +10,10 @@ try {
   cloudinary = null;
 }
 
-// Upload lecture file
+// Upload lecture file - simplified, no restrictions
 export const uploadLecture = async (req, res) => {
   try {
-    const { title, description, subject, topic, tags, isPublic } = req.body;
-    const userId = req.body.userId;
+    const { title, description, subject, topic, tags, uploaderName } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -24,8 +22,6 @@ export const uploadLecture = async (req, res) => {
         message: "Please upload a file",
       });
     }
-
-    const user = await User.findById(userId);
 
     let fileUrl;
     if (cloudinary) {
@@ -65,10 +61,8 @@ export const uploadLecture = async (req, res) => {
       fileUrl,
       fileType,
       fileSize: file.size,
-      user: userId,
-      userName: user ? user.name : "Guest",
+      userName: uploaderName || "Anonymous User",
       tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
-      isPublic: isPublic === "true",
     });
 
     await lecture.save();
@@ -84,62 +78,16 @@ export const uploadLecture = async (req, res) => {
   }
 };
 
-// Search lectures
-export const searchLectures = async (req, res) => {
-  try {
-    const { query, subject, topic, fileType, page = 1, limit = 12 } = req.query;
-    let searchQuery = { isPublic: true };
-
-    if (query) searchQuery.$text = { $search: query };
-    if (subject) searchQuery.subject = { $regex: subject, $options: "i" };
-    if (topic) searchQuery.topic = { $regex: topic, $options: "i" };
-    if (fileType) searchQuery.fileType = fileType;
-
-    const skip = (page - 1) * limit;
-
-    const lectures = await Lecture.find(searchQuery)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .populate("teacher", "name email");
-
-    const total = await Lecture.countDocuments(searchQuery);
-
-    res.json({
-      success: true,
-      lectures,
-      total,
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    console.error("Search lectures error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to search lectures" });
-  }
-};
-
-// ✅ Fetch all lectures (public, with pagination)
+// Fetch all lectures (simplified, no pagination, no filters)
 export const fetchAllLectures = async (req, res) => {
   try {
-    const { page = 1, limit = 12 } = req.query;
-    const skip = (page - 1) * limit;
-
     const lectures = await Lecture.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit))
-      .populate("teacher", "name email");
-
-    const total = await Lecture.countDocuments();
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       lectures,
-      total,
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(total / limit),
+      total: lectures.length,
     });
   } catch (error) {
     console.error("Fetch all lectures error:", error);
@@ -153,10 +101,7 @@ export const fetchAllLectures = async (req, res) => {
 export const getLectureById = async (req, res) => {
   try {
     const { lectureId } = req.params;
-    const lecture = await Lecture.findById(lectureId).populate(
-      "teacher",
-      "name email"
-    );
+    const lecture = await Lecture.findById(lectureId);
 
     if (!lecture) {
       return res
@@ -205,8 +150,7 @@ export const downloadLecture = async (req, res) => {
 export const updateLecture = async (req, res) => {
   try {
     const { lectureId } = req.params;
-    const { title, description, subject, topic, tags, isPublic } = req.body;
-    const userId = req.body.userId;
+    const { title, description, subject, topic, tags } = req.body;
 
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
@@ -215,21 +159,11 @@ export const updateLecture = async (req, res) => {
         .json({ success: false, message: "Lecture not found" });
     }
 
-    if (lecture.teacher.toString() !== userId) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "You can only update your own lectures",
-        });
-    }
-
     if (title) lecture.title = title;
     if (description) lecture.description = description;
     if (subject) lecture.subject = subject;
     if (topic) lecture.topic = topic;
     if (tags) lecture.tags = tags.split(",").map((tag) => tag.trim());
-    if (isPublic !== undefined) lecture.isPublic = isPublic === "true";
 
     await lecture.save();
 
@@ -250,22 +184,12 @@ export const updateLecture = async (req, res) => {
 export const deleteLecture = async (req, res) => {
   try {
     const { lectureId } = req.params;
-    const userId = req.body.userId;
 
     const lecture = await Lecture.findById(lectureId);
     if (!lecture) {
       return res
         .status(404)
         .json({ success: false, message: "Lecture not found" });
-    }
-
-    if (lecture.teacher.toString() !== userId) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "You can only delete your own lectures",
-        });
     }
 
     if (cloudinary && lecture.fileUrl && lecture.fileUrl.startsWith("http")) {
@@ -285,28 +209,5 @@ export const deleteLecture = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to delete lecture" });
-  }
-};
-
-// Get subjects list
-export const getSubjects = async (req, res) => {
-  try {
-    const subjects = await Lecture.distinct("subject");
-    res.json({ success: true, subjects });
-  } catch (error) {
-    console.error("Get subjects error:", error);
-    res.status(500).json({ success: false, message: "Failed to get subjects" });
-  }
-};
-
-// Get topics by subject
-export const getTopicsBySubject = async (req, res) => {
-  try {
-    const { subject } = req.params;
-    const topics = await Lecture.distinct("topic", { subject });
-    res.json({ success: true, topics });
-  } catch (error) {
-    console.error("Get topics error:", error);
-    res.status(500).json({ success: false, message: "Failed to get topics" });
   }
 };

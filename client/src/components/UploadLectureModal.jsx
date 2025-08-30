@@ -12,7 +12,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
     subject: '',
     topic: '',
     tags: '',
-    isPublic: true
+    uploaderName: userData?.name || ''
   });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -32,10 +32,10 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
   ];
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
@@ -59,7 +59,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       return;
     }
 
-    if (!formData.title || !formData.description || !formData.subject || !formData.topic) {
+    if (!formData.title || !formData.description || !formData.subject || !formData.topic || !formData.uploaderName) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -74,12 +74,9 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       formDataToSend.append('subject', formData.subject);
       formDataToSend.append('topic', formData.topic);
       formDataToSend.append('tags', formData.tags);
-      formDataToSend.append('isPublic', formData.isPublic);
-      // ✅ Add uploaderName instead of teacherName
-      formDataToSend.append('uploaderName', userData?.name || 'Unknown User');
+      formDataToSend.append('uploaderName', formData.uploaderName);
 
       const response = await axios.post(`${backendUrl}/api/lecture/upload`, formDataToSend, {
-        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -87,7 +84,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
 
       if (response.data.success) {
         toast.success('Lecture uploaded successfully!');
-        onSuccess(response.data.lecture); // ✅ pass lecture back
+        onSuccess(response.data.lecture);
         resetForm();
       }
     } catch (error) {
@@ -109,7 +106,7 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
       subject: '',
       topic: '',
       tags: '',
-      isPublic: true
+      uploaderName: userData?.name || ''
     });
     setFile(null);
   };
@@ -287,38 +284,27 @@ const UploadLectureModal = ({ onClose, onSuccess, backendUrl }) => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Add relevant tags to help students find your lecture
+              Add relevant tags to help others find your lecture
             </p>
           </div>
 
-          {/* Visibility */}
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="isPublic"
-              checked={formData.isPublic}
-              onChange={handleInputChange}
-              id="isPublic"
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label htmlFor="isPublic" className="ml-2 block text-sm text-gray-700">
-              Make this lecture public
+          {/* Uploader Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Your Name *
             </label>
-          </div>
-
-          {/* ✅ Uploaded By (not Teacher Info) */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                {userData?.name?.charAt(0)?.toUpperCase() || 'U'}
-              </div>
-              <div>
-                <div className="font-medium text-gray-800">{userData?.name}</div>
-                <div className="text-sm text-gray-500">
-                  Uploaded by • {userData?.email}
-                </div>
-              </div>
-            </div>
+            <input
+              type="text"
+              name="uploaderName"
+              value={formData.uploaderName}
+              onChange={handleInputChange}
+              placeholder="Enter your name"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              This will be displayed as the uploader of the lecture
+            </p>
           </div>
 
           {/* Actions */}

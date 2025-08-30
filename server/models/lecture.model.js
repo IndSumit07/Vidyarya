@@ -35,10 +35,6 @@ const lectureSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
     userName: {
       type: String,
       required: true,
@@ -49,10 +45,6 @@ const lectureSchema = new mongoose.Schema(
         trim: true,
       },
     ],
-    isPublic: {
-      type: Boolean,
-      default: true,
-    },
     views: {
       type: Number,
       default: 0,
@@ -76,7 +68,6 @@ lectureSchema.index({
   tags: "text",
 });
 lectureSchema.index({ subject: 1, topic: 1 });
-lectureSchema.index({ teacher: 1 });
 
 const Lecture = mongoose.model("Lecture", lectureSchema);
 

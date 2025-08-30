@@ -1,15 +1,11 @@
 import express from "express";
 import multer from "multer";
-import userAuth from "../middlewares/auth.middleware.js";
 import {
   uploadLecture,
-  searchLectures,
   getLectureById,
   downloadLecture,
   updateLecture,
   deleteLecture,
-  getSubjects,
-  getTopicsBySubject,
   fetchAllLectures,
 } from "../controllers/lecture.controller.js";
 
@@ -55,17 +51,12 @@ const upload = multer({
   },
 });
 
-// ✅ Public routes
-lectureRouter.get("/", fetchAllLectures); // all lectures, no auth
-lectureRouter.get("/search", searchLectures);
-lectureRouter.get("/subjects", getSubjects);
-lectureRouter.get("/subjects/:subject/topics", getTopicsBySubject);
+// ✅ All routes are public - no authentication required
+lectureRouter.get("/", fetchAllLectures); // all lectures
 lectureRouter.get("/:lectureId", getLectureById);
-
-// ✅ Auth required routes
-lectureRouter.post("/upload", userAuth, upload.single("file"), uploadLecture);
-lectureRouter.get("/download/:lectureId", userAuth, downloadLecture);
-lectureRouter.put("/:lectureId", userAuth, updateLecture);
-lectureRouter.delete("/:lectureId", userAuth, deleteLecture);
+lectureRouter.post("/upload", upload.single("file"), uploadLecture); // no auth required
+lectureRouter.get("/download/:lectureId", downloadLecture); // no auth required
+lectureRouter.put("/:lectureId", updateLecture); // no auth required
+lectureRouter.delete("/:lectureId", deleteLecture); // no auth required
 
 export default lectureRouter;
