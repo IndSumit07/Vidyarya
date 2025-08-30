@@ -12,7 +12,6 @@ import {
   FiCheckCircle,
   FiClock,
   FiAlertCircle,
-  FiBrain,
   FiZap
 } from 'react-icons/fi';
 import axios from 'axios';
