@@ -17,9 +17,9 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center w-full h-[80px] px-10">
       {/* Logo */}
-      <div className="text-2xl font-monts font-semibold text-[#2A4674] mr-20">
-        <Link to="/">
-            <img src={vidyarya} className="w-24" alt="" />
+      <div className="text-2xl font-monts font-semibold text-[#2A4674] mr-20 ">
+        <Link to="/" className="">
+            <img src={vidyarya} className="w-20" alt="" />
           </Link>
       </div>
 
@@ -64,9 +64,8 @@ const Navbar = () => {
             </Link>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-full transition-colors flex items-center gap-2"
+              className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-full transition-colors flex items-center gap-2"
             >
-              <FiLogOut size={16} />
               Logout
             </button>
           </>
