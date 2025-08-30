@@ -36,7 +36,7 @@ const QuizListPage = () => {
         {loading ? (
           <Loader label="Loading quizzes..." />
         ) : quizzes.length === 0 ? (
-          <div className="mt-10 text-center text-gray-600">No quizzes available yet. Create one from Generate Quiz or check back later.</div>
+          <div className="mt-10 text-center text-gray-400 bg-transparent">No quizzes available yet. Create one from Generate Quiz or check back later.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 bg-transparent">
             {quizzes.map((q) => (
