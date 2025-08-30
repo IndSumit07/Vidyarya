@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import Loader from "../components/Loader";
-
+import quizaddbg from "../../public/quizaddbg.png"
 const QuizResultPage = () => {
   const { attemptID } = useParams();
   const { backendUrl } = useContext(AppContext);
@@ -32,7 +32,7 @@ const QuizResultPage = () => {
   const { score, total, answers, questions } = result;
 
   return (
-    <div style={{ backgroundImage: "url('../../public/quizaddbg.png')" }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat overflow-hidden">
+    <div style={{ backgroundImage: `url(${quizaddbg})` }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat overflow-hidden">
       <div className="w-full max-w-3xl mx-auto p-6 bg-transparent ">
         <div className="text-center bg-transparent text-white mt-14 text-6xl font-monts font-black text-outline ">
         Quiz <span className="bg-transparent text-yellow-500">Result</span>

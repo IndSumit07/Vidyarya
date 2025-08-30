@@ -5,6 +5,7 @@ import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import quizbg from "../../public/quizbg.png"
 
 const GenerateQuizPage = () => {
   const { backendUrl } = useContext(AppContext);
@@ -65,7 +66,7 @@ const GenerateQuizPage = () => {
   };
 
   return (
-    <div style={{ backgroundImage: "url('../../public/quizbg.png')" }} className="min-h-[calc(100vh-80px)] h-auto w-full bg-cover bg-start bg-no-repeat flex justify-center items-center flex-col">
+    <div style={{ backgroundImage: `url(${quizbg})` }} className="min-h-[calc(100vh-80px)] h-auto w-full bg-cover bg-start bg-no-repeat flex justify-center items-center flex-col">
       <div className="w-[550px] min-h-[calc(100vh-80px)] flex flex-col justify-start items-center bg-transparent py-10">
         <div className="text-center bg-transparent text-white mt-14 text-7xl font-monts font-black text-outline ">
         Add <span className="bg-transparent text-yellow-500">Quiz</span>

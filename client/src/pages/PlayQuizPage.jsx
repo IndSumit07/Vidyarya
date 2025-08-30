@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../context/AppContext";
 import Loader from "../components/Loader";
-
+import quizbg from "../../public/quizbg.png"
 const PlayQuizPage = () => {
   const { quizID } = useParams();
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ const PlayQuizPage = () => {
   const q = questions[currentIndex];
 
   return (
-    <div style={{ backgroundImage: "url('../../public/quizbg.png')" }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat">
+    <div style={{ backgroundImage: `url(${quizbg})` }} className="h-[calc(100vh-80px)] w-full bg-cover bg-start bg-no-repeat">
       
       <div className="w-[540px] min-h-[calc(100vh-80px)] max-w-3xl mx-auto p-6 bg-transparent py-5" >
         <div className="text-center bg-transparent text-white mt-14 text-6xl font-monts font-black text-outline ">
