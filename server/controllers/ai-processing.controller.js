@@ -1,5 +1,7 @@
 import AIProcessedPDF from '../models/ai-processed-pdf.model.js';
 import geminiService from '../services/gemini.service.js';
+import fs from 'fs';
+import path from 'path';
 
 // Process PDF with Gemini API and store generated content
 export const processPDFWithAI = async (req, res) => {
@@ -22,9 +24,26 @@ export const processPDFWithAI = async (req, res) => {
       });
     }
 
+    // Check if file exists and is readable
+    if (!fs.existsSync(file.path)) {
+      return res.status(400).json({
+        success: false,
+        message: "Uploaded file not found",
+      });
+    }
+
     // Convert PDF to base64 for Gemini API
-    const fs = await import('fs');
-    const pdfBuffer = fs.readFileSync(file.path);
+    let pdfBuffer;
+    try {
+      pdfBuffer = fs.readFileSync(file.path);
+    } catch (readError) {
+      console.error('Error reading PDF file:', readError);
+      return res.status(500).json({
+        success: false,
+        message: "Error reading uploaded PDF file",
+      });
+    }
+
     const pdfBase64 = pdfBuffer.toString('base64');
 
     // Create AI processed PDF record with processing status
@@ -78,7 +97,15 @@ export const processPDFWithAI = async (req, res) => {
       });
 
     // Delete the uploaded file since we don't need to store it
-    fs.unlinkSync(file.path);
+    try {
+      if (fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+        console.log('Temporary file deleted successfully:', file.path);
+      }
+    } catch (deleteError) {
+      console.error('Error deleting temporary file:', deleteError);
+      // Don't fail the request if file deletion fails
+    }
 
     res.status(201).json({
       success: true,
@@ -88,7 +115,20 @@ export const processPDFWithAI = async (req, res) => {
 
   } catch (error) {
     console.error("AI Processing error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    
+    // Clean up uploaded file if it exists
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (cleanupError) {
+        console.error('Error cleaning up file:', cleanupError);
+      }
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: error.message || "Internal server error during AI processing" 
+    });
   }
 };
 

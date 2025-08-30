@@ -40,8 +40,30 @@ const upload = multer({
   },
 });
 
+// Error handling middleware for multer
+const handleMulterError = (error, req, res, next) => {
+  if (error instanceof multer.MulterError) {
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: "File too large. Maximum size is 50MB."
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: `Upload error: ${error.message}`
+    });
+  } else if (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+  next();
+};
+
 // AI Processing routes
-aiProcessingRouter.post("/process", upload.single("pdf"), processPDFWithAI);
+aiProcessingRouter.post("/process", upload.single("pdf"), handleMulterError, processPDFWithAI);
 aiProcessingRouter.get("/", getAllAIProcessedPDFs);
 aiProcessingRouter.get("/:id", getAIProcessedPDFById);
 aiProcessingRouter.post("/:id/regenerate", regenerateAIContent);
