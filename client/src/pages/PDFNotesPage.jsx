@@ -30,6 +30,7 @@ const PDFNotesPage = () => {
 
   // Upload form state
   const [uploadForm, setUploadForm] = useState({
+    pdf: '',
     title: '',
     description: '',
     subject: '',
@@ -99,7 +100,7 @@ const PDFNotesPage = () => {
       formData.append('tags', uploadForm.tags);
       formData.append('uploaderName', uploadForm.uploaderName);
 
-      const response = await axios.post(`${backendUrl}/api/pdf-ai/upload`, formData, {
+      const response = await axios.post(`${backendUrl}/api/pdf/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

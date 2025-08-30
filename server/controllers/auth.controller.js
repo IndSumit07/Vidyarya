@@ -80,7 +80,7 @@ export const login = async (req, res) => {
       return res.json({ success: false, message: "User not found" });
     }
 
-    const isMatched = await bcrypt.compare(password, user.password);
+    const isMatched = bcrypt.compare(password, user.password);
     if (!isMatched)
       return res.json({ success: false, message: "Invalid Password" });
 
@@ -113,16 +113,16 @@ export const isAuthenticated = async (req, res) => {
     if (!req.body.userId) {
       return res.json({ success: false, message: "Not authenticated" });
     }
-    
+
     // Check if user exists in database
-    const user = await User.findById(req.body.userId).select('-password');
+    const user = await User.findById(req.body.userId).select("-password");
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
-    
+
     return res.json({ success: true });
   } catch (error) {
-    console.error('isAuthenticated error:', error);
+    console.error("isAuthenticated error:", error);
     return res.json({ success: false, message: error.message });
   }
 };
@@ -130,9 +130,11 @@ export const isAuthenticated = async (req, res) => {
 export const getUserData = async (req, res) => {
   try {
     const userId = req.body.userId;
-    const user = await User.findById(userId).select('-password');
+    const user = await User.findById(userId).select("-password");
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
     return res.json({ success: true, userData: user });
   } catch (error) {
@@ -146,11 +148,11 @@ export const getUserData = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
@@ -159,17 +161,17 @@ export const forgotPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User with this email does not exist"
+        message: "User with this email does not exist",
       });
     }
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Store OTP with expiration (5 minutes)
     otpStore.set(email, {
       otp,
-      expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
+      expiresAt: Date.now() + 5 * 60 * 1000, // 5 minutes
     });
 
     // Send OTP via email
@@ -189,21 +191,20 @@ export const forgotPassword = async (req, res) => {
           <p>If you didn't request this password reset, please ignore this email.</p>
           <p>Best regards,<br>Team Vidyarya</p>
         </div>
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
 
     return res.json({
       success: true,
-      message: "OTP sent successfully to your email"
+      message: "OTP sent successfully to your email",
     });
-
   } catch (error) {
-    console.error('Forgot password error:', error);
+    console.error("Forgot password error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to send OTP. Please try again."
+      message: "Failed to send OTP. Please try again.",
     });
   }
 };
@@ -211,20 +212,20 @@ export const forgotPassword = async (req, res) => {
 export const verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    
+
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Email and OTP are required"
+        message: "Email and OTP are required",
       });
     }
 
     const storedData = otpStore.get(email);
-    
+
     if (!storedData) {
       return res.status(400).json({
         success: false,
-        message: "OTP not found or expired. Please request a new one."
+        message: "OTP not found or expired. Please request a new one.",
       });
     }
 
@@ -232,27 +233,26 @@ export const verifyOTP = async (req, res) => {
       otpStore.delete(email);
       return res.status(400).json({
         success: false,
-        message: "OTP has expired. Please request a new one."
+        message: "OTP has expired. Please request a new one.",
       });
     }
 
     if (storedData.otp !== otp) {
       return res.status(400).json({
         success: false,
-        message: "Invalid OTP. Please check and try again."
+        message: "Invalid OTP. Please check and try again.",
       });
     }
 
     return res.json({
       success: true,
-      message: "OTP verified successfully"
+      message: "OTP verified successfully",
     });
-
   } catch (error) {
-    console.error('OTP verification error:', error);
+    console.error("OTP verification error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to verify OTP. Please try again."
+      message: "Failed to verify OTP. Please try again.",
     });
   }
 };
@@ -260,28 +260,28 @@ export const verifyOTP = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
-    
+
     if (!email || !otp || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Email, OTP, and new password are required"
+        message: "Email, OTP, and new password are required",
       });
     }
 
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 6 characters long"
+        message: "Password must be at least 6 characters long",
       });
     }
 
     // Verify OTP again
     const storedData = otpStore.get(email);
-    
+
     if (!storedData || storedData.otp !== otp) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired OTP. Please request a new one."
+        message: "Invalid or expired OTP. Please request a new one.",
       });
     }
 
@@ -289,7 +289,7 @@ export const resetPassword = async (req, res) => {
       otpStore.delete(email);
       return res.status(400).json({
         success: false,
-        message: "OTP has expired. Please request a new one."
+        message: "OTP has expired. Please request a new one.",
       });
     }
 
@@ -298,14 +298,14 @@ export const resetPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     // Hash new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    
+
     // Update user password
     user.password = hashedPassword;
     await user.save();
@@ -327,21 +327,20 @@ export const resetPassword = async (req, res) => {
           <p>If you didn't perform this action, please contact our support team immediately.</p>
           <p>Best regards,<br>Team Vidyarya</p>
         </div>
-      `
+      `,
     };
 
     await transporter.sendMail(mailOptions);
 
     return res.json({
       success: true,
-      message: "Password reset successfully"
+      message: "Password reset successfully",
     });
-
   } catch (error) {
-    console.error('Password reset error:', error);
+    console.error("Password reset error:", error);
     return res.status(500).json({
       success: false,
-      message: "Failed to reset password. Please try again."
+      message: "Failed to reset password. Please try again.",
     });
   }
 };
@@ -349,22 +348,22 @@ export const resetPassword = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     // Clear the authentication cookie
-    res.clearCookie('token', {
+    res.clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      path: '/'
+      path: "/",
     });
 
     return res.json({
       success: true,
-      message: "Logged out successfully"
+      message: "Logged out successfully",
     });
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
     return res.status(500).json({
       success: false,
-      message: "Error during logout"
+      message: "Error during logout",
     });
   }
 };
