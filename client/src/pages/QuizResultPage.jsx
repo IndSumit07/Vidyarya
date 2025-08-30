@@ -25,7 +25,6 @@ const QuizResultPage = () => {
 
   if (!result) return (
     <div>
-      <Navbar />
       <Loader label="Fetching results..." />
     </div>
   );

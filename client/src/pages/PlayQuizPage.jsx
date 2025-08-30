@@ -69,7 +69,6 @@ const PlayQuizPage = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="w-full min-h-[calc(100vh-80px)] max-w-3xl mx-auto p-6">
         {loading ? (
           <Loader label="Preparing quiz..." />

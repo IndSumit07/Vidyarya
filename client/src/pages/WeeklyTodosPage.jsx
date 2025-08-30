@@ -61,7 +61,6 @@ const WeeklyTodosPage = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">My Week</h1>
         {loading ? <Loader label="Loading week..." /> : (

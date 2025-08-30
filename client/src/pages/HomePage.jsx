@@ -7,7 +7,6 @@ import { Link } from 'react-router-dom'
 const HomePage = () => {
   return (
     <div>
-        <Navbar/>
         <Hero/>
         <Services/>
         <div className="w-full max-w-5xl mx-auto px-6 my-10 grid grid-cols-1 md:grid-cols-3 gap-6">

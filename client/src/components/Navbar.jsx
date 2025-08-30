@@ -1,24 +1,26 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-
+import vidyarya from "../../public/vidyarya2.png"
 const Navbar = () => {
   const { userData, isLoggedIn } = useContext(AppContext);
   const [activeLink, setActiveLink] = useState("home");
-
+  
   return (
     <nav className="flex justify-between items-center w-full h-[80px] px-10">
       {/* Logo */}
       <div className="text-2xl font-monts font-semibold text-[#2A4674] mr-20">
-        <Link to="/">Vidyarya</Link>
+        <Link to="/">
+            <img src={vidyarya} className="w-24" alt="" />
+          </Link>
       </div>
 
       {/* Links */}
       <ul className="flex justify-center items-center gap-8 font-chakra text-[#2A4674]">
         {[
           { key: "home", to: "/", label: "Home" },
-          { key: "dashboard", to: "/dashboard", label: "Dashboard" },
           { key: "quizzes", to: "/quizzes", label: "Quizzes" },
+          { key: "coderoom", to: "/coderooms", label: "Coderooms" },
           { key: "chat", to: "/chat", label: "Chatrooms" },
           { key: "todos", to: "/todos", label: "Todos" },
           { key: "pdf-notes", to: "/pdf-notes", label: "PDF Notes" },

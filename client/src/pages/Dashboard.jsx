@@ -8,7 +8,6 @@ const Dashboard = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="w-full max-w-7xl mx-auto p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="md:col-span-1 border-2 border-[#2A4674] rounded-2xl p-5 h-fit">
           <div className="flex items-center gap-4 bg-transparent">

@@ -38,8 +38,9 @@ const DashboardPage = () => {
       </aside>
 
       {/* Main */}
-      <main className="flex-1 bg-[#F5F5EF] p-10">
-        <h1 className="text-4xl font-extrabold text-[#2A4674] font-monts">{userData?.name+"'s Data"}</h1>
+      <main className="flex-1 flex bg-[#F5F5EF] p-10">
+        <div>
+          <h1 className="text-4xl font-extrabold text-[#2A4674] font-monts">{userData?.name+"'s Data"}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           <Card title="Lectures" desc="Watch recorded sessions and live classes." to="/lectures" bg="#fde2e4" icon="🎥"/>
           <Card title="Timetable" desc="Keep track of your schedule and deadlines." to="/timetable" bg="#cdb4db" icon="📆"/>
@@ -49,6 +50,10 @@ const DashboardPage = () => {
           <Card title="Ideas" desc="Save ideas and resources for later." to="/ideas" bg="#5b21b6" icon="💡"/>
           <Card title="My Todos" desc="View this week's todos by day." to="/todos/week" bg="#a7f3d0" icon="📆"/>
           <Card title="Discussions" desc="Ask questions and collaborate." to="/chat" bg="#a78bfa" icon="☁️"/>
+        </div>
+        </div>
+        <div>
+          <Link to="/" className='bg-[#2A4674] text-white font-chakra text-xl px-5 py-3 rounded-xl cursor-pointer' >Home</Link>
         </div>
       </main>
     </div>

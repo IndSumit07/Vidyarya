@@ -21,15 +21,16 @@ import IdeasPage from './pages/IdeasPage';
 import CustomizePage from './pages/CustomizePage';
 import WeeklyTodosPage from './pages/WeeklyTodosPage';
 import PDFNotesPage from './pages/PDFNotesPage';
+import Navbar from './components/Navbar';
 
 const App = () => {
-  // const location = useLocation();
-  // const hideNavbarRoutes = ["/login"];
-  // const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
+  const location = useLocation();
+  const hideNavbarRoutes = ["/login", "/dashboard"];
+  const shouldHideNavbar = hideNavbarRoutes.includes(location.pathname);
   return (
     <div>
       <ToastContainer className="bg-transparent"/>
-
+      {!shouldHideNavbar && (<Navbar/>)}
       <Routes>
         <Route path='/' element={<HomePage/>} />
         <Route path='/login' element={<LoginPage/>} />

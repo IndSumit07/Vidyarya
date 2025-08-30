@@ -110,7 +110,6 @@ const ChatRoomPage = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="w-full max-w-3xl mx-auto p-6">
         {/* Room Header */}
         {room && (

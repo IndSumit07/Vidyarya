@@ -79,7 +79,6 @@ const ChatRoomsPage = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="w-full max-w-5xl mx-auto p-6">
         <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674] mt-10">Chat Rooms</h1>
 

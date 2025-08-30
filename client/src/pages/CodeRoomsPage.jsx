@@ -27,7 +27,11 @@ const CodeRoomsPage = () => {
   const languages = [
     { value: 'javascript', label: 'JavaScript', icon: '⚡' },
     { value: 'html', label: 'HTML', icon: '🌐' },
-    { value: 'css', label: 'CSS', icon: '🎨' }
+    { value: 'css', label: 'CSS', icon: '🎨' },
+    { value: 'python', label: 'Python', icon: '🐍' },
+    { value: 'java', label: 'Java', icon: '☕' },
+    { value: 'c', label: 'C', icon: '🔧' },
+    { value: 'cpp', label: 'C++', icon: '⚙️' }
   ];
 
   useEffect(() => {
@@ -131,7 +135,6 @@ const CodeRoomsPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100">
-        <Navbar />
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2A4674]"></div>
         </div>
@@ -141,7 +144,6 @@ const CodeRoomsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
       <div className="max-w-7xl mx-auto p-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="font-monts font-bold text-4xl text-white px-8 py-4 rounded-full bg-[#2A4674]">
@@ -150,7 +152,7 @@ const CodeRoomsPage = () => {
           <div className="flex gap-4">
             <button
               onClick={() => setShowJoinModal(true)}
-              className="bg-transparent flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
+              className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition"
             >
               <FaSignInAlt />
               Join Room
@@ -186,7 +188,7 @@ const CodeRoomsPage = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent">
             {rooms.map((room) => (
               <div key={room._id} className="bg-white rounded-2xl shadow-lg border-2 border-[#2A4674] p-6 hover:shadow-xl transition">
                 <div className="flex items-center justify-between mb-4">
