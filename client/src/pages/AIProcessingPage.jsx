@@ -32,7 +32,8 @@ const AIProcessingPage = () => {
     description: '',
     subject: '',
     tags: '',
-    uploaderName: ''
+    uploaderName: '',
+    file: null
   });
 
   // Fetch AI processed PDFs on mount
@@ -124,7 +125,8 @@ const AIProcessingPage = () => {
       description: '',
       subject: '',
       tags: '',
-      uploaderName: ''
+      uploaderName: '',
+      file: null
     });
   };
 
@@ -357,20 +359,37 @@ const AIProcessingPage = () => {
                     id="pdf-upload"
                   />
                   <label htmlFor="pdf-upload" className="cursor-pointer">
-                    <div className="space-y-2">
-                      <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="text-gray-600">
-                        <span className="font-medium text-purple-600 hover:text-purple-500">
-                          Click to upload PDF
-                        </span>
-                        {' '}or drag and drop
+                    {uploadForm.file ? (
+                      <div className="space-y-2">
+                        <FiFileText className="mx-auto h-12 w-12 text-green-500" />
+                        <div className="text-green-600 font-medium">
+                          {uploadForm.file.name}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          Click to change file • {(uploadForm.file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        PDF files up to 50MB • Original file will not be stored
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="text-gray-600">
+                          <span className="font-medium text-purple-600 hover:text-purple-500">
+                            Click to upload PDF
+                          </span>
+                          {' '}or drag and drop
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          PDF files up to 50MB • Original file will not be stored
+                        </p>
+                      </div>
+                    )}
                   </label>
                 </div>
+                {uploadForm.file && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    Selected: <span className="font-medium">{uploadForm.file.name}</span>
+                  </div>
+                )}
               </div>
 
               {/* Title */}
