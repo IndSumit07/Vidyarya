@@ -22,29 +22,7 @@ const Hero = () => {
             <div className='bg-transparent'><img src={pencil} alt="" className='absolute -right-[180px] -bottom-40 bg-transparent w-[60%]'/></div>
             <div className='bg-transparent'><img src={curl} alt="" className='absolute -right-[300px] -bottom-[520px]  bg-transparent '/></div>
 
-            {/* New Feature Banner */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-xl shadow-lg mb-6 transform hover:scale-105 transition-transform cursor-pointer">
-              <Link to="/pdf-notes" className="flex items-center gap-3">
-                <div className="text-2xl">📚</div>
-                <div>
-                  <div className="font-bold text-lg">NEW: PDF Notes with AI!</div>
-                  <div className="text-sm opacity-90">Upload PDFs and get AI-generated study materials</div>
-                </div>
-                <div className="text-xl">→</div>
-              </Link>
-            </div>
-
-            {/* AI Processing Banner */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl shadow-lg mb-6 transform hover:scale-105 transition-transform cursor-pointer">
-              <Link to="/ai-processing" className="flex items-center gap-3">
-                <div className="text-2xl">🧠</div>
-                <div>
-                  <div className="font-bold text-lg">NEW: AI PDF Processing!</div>
-                  <div className="text-sm opacity-90">Scan PDFs with AI to generate quizzes, flashcards & summaries</div>
-                </div>
-                <div className="text-xl">→</div>
-              </Link>
-            </div>
+    
         </div>
         
     </div>
